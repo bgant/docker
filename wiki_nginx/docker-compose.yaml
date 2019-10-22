@@ -8,9 +8,4 @@ services:
             - ./:/mnt/
         ports:
             - "80:80"
-        command: /bin/bash
-        links:
-            - php
-    php:
-        image: php:rc-fpm-alpine
-        # Source: http://geekyplatypus.com/dockerise-your-php-application-with-nginx-and-php7-fpm/
+        #command: /usr/sbin/nginx  #CMD in Dockerfile
