@@ -14,14 +14,17 @@ RUN apk update && apk upgrade
 # Install web server
 RUN apk add nginx openssl
 RUN mkdir /run/nginx
-COPY openssl_self_signed_cert.conf /opt
-RUN cd /opt && openssl req -x509 -nodes -days 3650 -newkey rsa:2048 -keyout localhost.key -out localhost.crt -config openssl_self_signed_cert.conf
-RUN cp localhost.crt /etc/ssl/certs/localhost.crt && cp localhost.key /etc/ssl/private/localhost.key
+
+# Install openssl files (create with generate-openssl.sh)
+COPY localhost.crt /etc/ssl/certs/localhost.crt 
+COPY localhost.key /etc/ssl/private/localhost.key
 
 # Download latest MediaWiki version       
 RUN apk add bash html-xml-utils           
 COPY download-mediawiki.sh /opt/               
 RUN /bin/bash /opt/download-mediawiki.sh
+
+# Install PHP files
 
 # Install database
 #RUN apk add sqlite php7-sqlite3
