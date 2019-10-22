@@ -25,11 +25,21 @@ patch=$(wget -q -O - http://releases.wikimedia.org/mediawiki/${major}.${minor}/ 
                 grep mediawiki-${major}.${minor} | grep -v rc | \
                 awk -F'.' '{print $3}' | sort -n | tail -n 1)
 
-echo "Latest mediawiki version: ${major}.${minor}.${patch}"
+# For when a new release candidate is first released
+if [ -n patch ]
+then
+    minor=$(($minor - 1))
+    patch=$(wget -q -O - http://releases.wikimedia.org/mediawiki/${major}.${minor}/ | \
+                hxnormalize -x | hxselect -c -s '\n' a | \
+                grep mediawiki-${major}.${minor} | grep -v rc | \
+                awk -F'.' '{print $3}' | sort -n | tail -n 1)
+fi
+
+echo "Latest mediawiki version: ${major}.${minor}.${patch}  (excluding release candidates)"
 
 # Assuming nginx is the web server
 wget -O ${dir}/mediawiki-${major}.${minor}.${patch}.tar.gz http://releases.wikimedia.org/mediawiki/${major}.${minor}/mediawiki-${major}.${minor}.${patch}.tar.gz
-tar xvfz ${dir}/mediawiki-${major}.${minor}.${patch}.tar.gz -C ${dir}/
+tar xfz ${dir}/mediawiki-${major}.${minor}.${patch}.tar.gz -C ${dir}/
 rm ${dir}/mediawiki-${major}.${minor}.${patch}.tar.gz
 cd ${dir}
 ln -s mediawiki-${major}.${minor}.${patch} mediawiki
