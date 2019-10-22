@@ -5,10 +5,18 @@
 example1/mysql/*
 example1/redis/*
 
-# MediaWiki data
-*/LocalSettings.php
-*/images/*
-*/sqlite/*
-
 wiki_nginx/localhost.crt
 wiki_nginx/localhost.key
+wiki_nginx/LocalSettings.php
+wiki_nginx/images/*
+wiki_nginx/sqlite/*
+
+wiki_lighttpd/localhost.crt
+wiki_lighttpd/localhost.key
+wiki_lighttpd/LocalSettings.php
+wiki_lighttpd/images/*
+wiki_lighttpd/sqlite/*
+
+mediawiki/LocalSettings.php
+mediawiki/images/*
+mediawiki/sqlite/*
