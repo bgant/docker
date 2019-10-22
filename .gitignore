@@ -1,0 +1,12 @@
+# Ignore docker user files
+.ash_history
+.bash_history
+
+example1/mysql/*
+example1/redis/*
+
+# MediaWiki data
+*/LocalSettings.php
+*/images/*
+*/sqlite/*
+

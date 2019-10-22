@@ -1,0 +1,16 @@
+version: '3'
+services:
+    app:
+        container_name: wiki_nginx
+        build: .
+        volumes:
+            - ./nginx_mediawiki.conf:/etc/nginx/conf.d/nginx_mediawiki.conf
+            - ./:/mnt/
+        ports:
+            - "80:80"
+        command: /bin/bash
+        links:
+            - php
+    php:
+        image: php:rc-fpm-alpine
+        # Source: http://geekyplatypus.com/dockerise-your-php-application-with-nginx-and-php7-fpm/
