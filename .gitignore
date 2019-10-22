@@ -10,3 +10,5 @@ example1/redis/*
 */images/*
 */sqlite/*
 
+wiki_nginx/localhost.crt
+wiki_nginx/localhost.key
