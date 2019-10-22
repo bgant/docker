@@ -9,6 +9,7 @@
 
 # nginx web server
 dir="/var/www/localhost/htdocs"
+#dir="/usr/share/nginx/html"
 user="nginx"
 
 # Find the latest version number (major.minor.patch) of mediawiki for download
@@ -39,6 +40,7 @@ echo "Latest mediawiki version: ${major}.${minor}.${patch}  (excluding release c
 
 # Assuming nginx is the web server
 wget -O ${dir}/mediawiki-${major}.${minor}.${patch}.tar.gz http://releases.wikimedia.org/mediawiki/${major}.${minor}/mediawiki-${major}.${minor}.${patch}.tar.gz
+echo "extracting files from mediawiki-${major}.${minor}.${patch}.tar.gz..."
 tar xfz ${dir}/mediawiki-${major}.${minor}.${patch}.tar.gz -C ${dir}/
 rm ${dir}/mediawiki-${major}.${minor}.${patch}.tar.gz
 cd ${dir}
