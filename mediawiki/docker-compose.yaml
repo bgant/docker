@@ -2,8 +2,8 @@ version: '3'
 services:
   mediawiki:
     container_name: mediawiki_brandon
-    #image: mediawiki:latest
-    build: .
+    #image: mediawiki:latest  # This is Docker's official image but not MediaWiki's
+    build: .                  # Build Debian Buster/Apache/PHP/SQLite image using MediaWiki's github Dockerfile
     restart: always
     ports:
       - 80:80
@@ -13,4 +13,4 @@ services:
       # After initial setup, download LocalSettings.php to the same directory as
       # this yaml and uncomment the following line and use compose to restart
       # the mediawiki service
-      - ./LocalSettings.php:/var/www/html/LocalSettings.php
+      #- ./LocalSettings.php:/var/www/html/LocalSettings.php
