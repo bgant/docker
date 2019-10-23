@@ -8,8 +8,13 @@
 
 FROM alpine:latest
 
-# Patch Alpine Linux
-#RUN apk update && apk upgrade  # Docker will cache this command and it will never run in the future unless full rebuild 
+# "You don't upgrade in builds"
+# "Running containers should not be modified (containers should be immutable and stateless)"
+# "Put your containers behind a load balancer and it can be a zero-downtime thing"
+# "Updates are baked into the base images so you should not apt-get upgrade your containers"
+# "This updates all packages — which is bad because it prevents Dockerfile from creating consistent, immutable builds."
+#RUN apk update && apk upgrade  # This runs once during build, is cached, and will never run again
+# Source: https://runnable.com/blog/9-common-dockerfile-mistakes
 
 # Install web server
 RUN apk update && apk add nginx openssl
@@ -26,6 +31,7 @@ COPY download-mediawiki.sh /opt/
 RUN /bin/bash /opt/download-mediawiki.sh
 
 # Install PHP files
+RUN apk update && apk add php7 php7-fpm
 
 # Install database
 #RUN apk update && apk add sqlite php7-sqlite3
@@ -37,10 +43,14 @@ RUN /bin/bash /opt/download-mediawiki.sh
 EXPOSE 80 443
 
 # From nginx Dockerfile
+# Source: https://github.com/nginxinc/docker-nginx/blob/master/mainline/alpine/Dockerfile
 # Forward request and error logs to docker log collector
 RUN ln -sf /dev/stdout /var/log/nginx/access.log && \
-    ln -sf /dev/stderr /var/log/nginx/error.log
-
-# From nginx Dockerfile
-CMD ["nginx", "-g", "daemon off;"]
+    ln -sf /dev/stderr /var/log/nginx/error.log && \
+    ln -sf /dev/stderr /var/log/php7/error.log
+# Run nginx
+#CMD ["nginx", "-g", "daemon off;"]
+#CMD ["php-fpm7", "-F", "-R"] && ["nginx", "-g", "daemon off;"]
+#CMD php-fpm7 -F -R && nginx -g "daemon off;"
+CMD php-fpm7 -F && nginx -g "daemon off;"
 
