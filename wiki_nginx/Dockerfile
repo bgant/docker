@@ -48,9 +48,5 @@ EXPOSE 80 443
 RUN ln -sf /dev/stdout /var/log/nginx/access.log && \
     ln -sf /dev/stderr /var/log/nginx/error.log && \
     ln -sf /dev/stderr /var/log/php7/error.log
-# Run nginx
-#CMD ["nginx", "-g", "daemon off;"]
-#CMD ["php-fpm7", "-F", "-R"] && ["nginx", "-g", "daemon off;"]
-#CMD php-fpm7 -F -R && nginx -g "daemon off;"
-CMD php-fpm7 -F && nginx -g "daemon off;"
-
+# Run php-fpm7 and nginx
+CMD /usr/sbin/php-fpm7 && /usr/sbin/nginx -g "daemon off;"
