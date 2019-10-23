@@ -14,9 +14,10 @@ RUN apk update && apk upgrade
 # Install web server
 RUN apk add nginx openssl
 RUN mkdir /run/nginx
+RUN mv -v /etc/nginx/conf.d/default.conf /etc/nginx/conf.d/default.conf.disabled
 
 # Install openssl files (create with generate-openssl.sh)
-COPY localhost.crt /etc/ssl/certs/localhost.crt 
+COPY localhost.crt /etc/ssl/certs/localhost.crt
 COPY localhost.key /etc/ssl/private/localhost.key
 
 # Download latest MediaWiki version       
@@ -34,3 +35,9 @@ RUN /bin/bash /opt/download-mediawiki.sh
 
 # Make network ports available
 EXPOSE 80 443
+
+# Forward request and error logs to docker log collector
+RUN ln -sf /dev/stdout /var/log/nginx/access.log && \
+    ln -sf /dev/stderr /var/log/nginx/error.log
+
+CMD ["nginx", "-g", "daemon off;"]
