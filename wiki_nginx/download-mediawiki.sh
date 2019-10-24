@@ -1,16 +1,6 @@
 #!/bin/bash
 #
-# This script assumes Dockerfile has already install the following packages:
-#   apk add bash html-xml-utils
-
-# lighttpd web server
-#dir="/var/www/localhost/htdocs"
-#user="lighttpd"
-
-# nginx web server
-dir="/var/www/localhost/htdocs"
-#dir="/usr/share/nginx/html"
-user="nginx"
+# This script requires tools from the html-xml-utils package (hxnormalize and hxselect)
 
 # Find the latest version number (major.minor.patch) of mediawiki for download
 major=$(wget -q -O - http://releases.wikimedia.org/mediawiki/ | \
@@ -38,12 +28,11 @@ fi
 
 echo "Latest mediawiki version: ${major}.${minor}.${patch}  (excluding release candidates)"
 
-# Assuming nginx is the web server
-wget -O ${dir}/mediawiki-${major}.${minor}.${patch}.tar.gz http://releases.wikimedia.org/mediawiki/${major}.${minor}/mediawiki-${major}.${minor}.${patch}.tar.gz
+if [ ! -e mediawiki-${major}.${minor}.${patch}.tar.gz ]
+then
+    wget -O mediawiki-${major}.${minor}.${patch}.tar.gz http://releases.wikimedia.org/mediawiki/${major}.${minor}/mediawiki-${major}.${minor}.${patch}.tar.gz
+fi
 echo "extracting files from mediawiki-${major}.${minor}.${patch}.tar.gz..."
-tar xfz ${dir}/mediawiki-${major}.${minor}.${patch}.tar.gz -C ${dir}/
-rm ${dir}/mediawiki-${major}.${minor}.${patch}.tar.gz
-cd ${dir}
-ln -s mediawiki-${major}.${minor}.${patch} mediawiki
-chown -R ${user}:${user} ${dir}
+tar xfz mediawiki-${major}.${minor}.${patch}.tar.gz
+#rm mediawiki-${major}.${minor}.${patch}.tar.gz
 
