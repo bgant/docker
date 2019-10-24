@@ -6,7 +6,7 @@ services:
         volumes:
             - ./mediawiki-nginx/nginx_mediawiki.conf:/etc/nginx/conf.d/nginx_mediawiki.conf
             - ./mediawiki-app:/var/www/localhost/htdocs:ro
-            - ./mediawiki-images:/var/www/localhost/htdocs/images
+            - images:/var/www/localhost/htdocs/images
             #- ./LocalSettings.php:/var/www/localhost/htdocs/LocalSettings.php
             #- ./test.php:/var/www/localhost/htdocs/test.php:ro
         ports:
@@ -18,4 +18,10 @@ services:
         build: ./mediawiki-php
         volumes:
             - ./mediawiki-app:/var/www/html:ro
-            - ./mediawiki-data:/var/www/localhost/data
+            - data:/var/www/localhost/data
+
+volumes:
+    images:
+        driver: local
+    data:
+        driver: local
