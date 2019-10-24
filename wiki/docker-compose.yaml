@@ -2,20 +2,20 @@ version: '3'
 services:
     nginx:
         container_name: wiki_nginx
-        build: ./nginx
+        build: ./mediawiki-nginx
         volumes:
-            - ./nginx/nginx_mediawiki.conf:/etc/nginx/conf.d/nginx_mediawiki.conf
-            - ./mediawiki-1.33.1:/var/www/localhost/htdocs:ro
-            #- ./mediawiki-images:/var/www/localhost/htdocs/images
-            #- ./mediawiki-data:
+            - ./mediawiki-nginx/nginx_mediawiki.conf:/etc/nginx/conf.d/nginx_mediawiki.conf
+            - ./mediawiki-app:/var/www/localhost/htdocs:ro
+            - ./mediawiki-images:/var/www/localhost/htdocs/images
             #- ./LocalSettings.php:/var/www/localhost/htdocs/LocalSettings.php
             #- ./test.php:/var/www/localhost/htdocs/test.php:ro
         ports:
             - "80:80"
         depends_on:
-            - php7-fpm
-    php7-fpm:
+            - php
+    php:
         container_name: wiki_php
-        image: php:7-fpm-alpine
+        build: ./mediawiki-php
         volumes:
-            - ./mediawiki-1.33.1:/var/www/html:ro
+            - ./mediawiki-app:/var/www/html:ro
+            - ./mediawiki-data:/var/www/localhost/data
