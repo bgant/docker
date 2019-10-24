@@ -1,0 +1,10 @@
+version: '3'
+services:
+    main:
+        image: alpine
+        container_name: main
+        command: "ping -c5 target"
+    target:
+        image: alpine
+        container_name: target
+        command: "sleep 5"
