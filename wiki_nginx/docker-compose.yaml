@@ -2,10 +2,20 @@ version: '3'
 services:
     app:
         container_name: wiki_nginx
-        build: .
+        build: ./nginx
         volumes:
-            - ./nginx_mediawiki.conf:/etc/nginx/conf.d/nginx_mediawiki.conf
-            - ./:/mnt/
+            - ./nginx/nginx_mediawiki.conf:/etc/nginx/conf.d/nginx_mediawiki.conf
+            - ./mediawiki-1.33.1:/var/www/localhost/htdocs:ro
+            #- ./mediawiki-images:/var/www/localhost/htdocs/images
+            #- ./mediawiki-data:
+            #- ./LocalSettings.php:/var/www/localhost/htdocs/LocalSettings.php
+            #- ./test.php:/var/www/localhost/htdocs/test.php:ro
         ports:
             - "80:80"
-        #command: /usr/sbin/nginx  #CMD in Dockerfile
+        depends_on:
+            - php7-fpm
+    php7-fpm:
+        container_name: wiki_php
+        image: php:7-fpm-alpine
+        volumes:
+            - ./mediawiki-1.33.1:/var/www/html:ro
