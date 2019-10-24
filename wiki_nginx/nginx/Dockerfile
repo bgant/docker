@@ -17,21 +17,13 @@ FROM alpine:latest
 # Source: https://runnable.com/blog/9-common-dockerfile-mistakes
 
 # Install web server
-RUN apk update && apk add nginx openssl
+RUN apk update && apk add nginx openssl bind-tools
 RUN mkdir /run/nginx
 RUN mv -v /etc/nginx/conf.d/default.conf /etc/nginx/conf.d/default.conf.disabled
 
 # Install openssl files (create with generate-openssl.sh)
 COPY localhost.crt /etc/ssl/certs/localhost.crt
 COPY localhost.key /etc/ssl/private/localhost.key
-
-# Download latest MediaWiki version       
-RUN apk update && apk add bash html-xml-utils           
-COPY download-mediawiki.sh /opt/               
-RUN /bin/bash /opt/download-mediawiki.sh
-
-# Install PHP files
-RUN apk update && apk add php7 php7-fpm
 
 # Install database
 #RUN apk update && apk add sqlite php7-sqlite3
@@ -46,7 +38,5 @@ EXPOSE 80 443
 # Source: https://github.com/nginxinc/docker-nginx/blob/master/mainline/alpine/Dockerfile
 # Forward request and error logs to docker log collector
 RUN ln -sf /dev/stdout /var/log/nginx/access.log && \
-    ln -sf /dev/stderr /var/log/nginx/error.log && \
-    ln -sf /dev/stderr /var/log/php7/error.log
-# Run php-fpm7 and nginx
-CMD /usr/sbin/php-fpm7 && /usr/sbin/nginx -g "daemon off;"
+    ln -sf /dev/stderr /var/log/nginx/error.log
+CMD ["nginx", "-g", "daemon off;"]
