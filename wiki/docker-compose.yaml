@@ -1,6 +1,6 @@
 version: '3'
 services:
-    app:
+    nginx:
         container_name: wiki_nginx
         build: ./nginx
         volumes:
