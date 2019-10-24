@@ -17,7 +17,7 @@ FROM alpine:latest
 # Source: https://runnable.com/blog/9-common-dockerfile-mistakes
 
 # Install web server
-RUN apk update && apk add nginx openssl bind-tools
+RUN apk update && apk add nginx openssl
 RUN mkdir /run/nginx
 RUN mv -v /etc/nginx/conf.d/default.conf /etc/nginx/conf.d/default.conf.disabled
 
