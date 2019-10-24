@@ -5,10 +5,10 @@
 example1/mysql/*
 example1/redis/*
 
-wiki_nginx/nginx/localhost.crt
-wiki_nginx/nginx/localhost.key
-wiki_nginx/LocalSettings.php
-wiki_nginx/mediawiki-*
+wiki/nginx/localhost.crt
+wiki/nginx/localhost.key
+wiki/LocalSettings.php
+wiki/mediawiki-*
 
 wiki_lighttpd/localhost.crt
 wiki_lighttpd/localhost.key
