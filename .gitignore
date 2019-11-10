@@ -8,7 +8,8 @@ example1/redis/*
 wiki/nginx/localhost.crt
 wiki/nginx/localhost.key
 wiki/LocalSettings.php
-wiki/mediawiki-*
+wiki/mediawiki-*.tar.gz
+wiki/mediawiki-*.*.*
 
 wiki_lighttpd/localhost.crt
 wiki_lighttpd/localhost.key
