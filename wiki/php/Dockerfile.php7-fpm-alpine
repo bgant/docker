@@ -1,0 +1,6 @@
+# This works but I do not know how to add PHP packages to
+# this compiled PHP software.
+
+FROM php:7-fpm-alpine
+
+RUN apk update && apk add diffutils imagemagick

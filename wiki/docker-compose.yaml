@@ -1,10 +1,10 @@
 version: '3'
 services:
     nginx:
-        container_name: wiki_nginx
-        build: ./mediawiki-nginx
+        container_name: wiki-nginx
+        build: ./nginx
         volumes:
-            - ./mediawiki-nginx/nginx_mediawiki.conf:/etc/nginx/conf.d/nginx_mediawiki.conf
+            - ./nginx/nginx_mediawiki.conf:/etc/nginx/conf.d/nginx_mediawiki.conf
             - ./mediawiki-app:/var/www/localhost/htdocs:ro
             - images:/var/www/localhost/htdocs/images
             #- ./LocalSettings.php:/var/www/localhost/htdocs/LocalSettings.php
@@ -14,8 +14,8 @@ services:
         depends_on:
             - php
     php:
-        container_name: wiki_php
-        build: ./mediawiki-php
+        container_name: wiki-php
+        build: ./php
         volumes:
             - ./mediawiki-app:/var/www/html:ro
             - data:/var/www/localhost/data
