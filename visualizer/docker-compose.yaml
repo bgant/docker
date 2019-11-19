@@ -1,0 +1,23 @@
+# docker stack deploy swarm -c docker-compose.yaml
+# docker service update swarm_visualizer   <-- reload with new changes
+#
+# Source: https://hub.docker.com/r/dockersamples/visualizer
+
+version: "3"
+
+services:
+  visualizer:
+    image: dockersamples/visualizer
+    volumes:
+    - "/var/run/docker.sock:/var/run/docker.sock"
+    ports:
+    - "8080:8080/tcp"
+    deploy:
+      placement:
+        constraints: [node.role == manager]
+      restart-policy:
+        #condition: no              # Default
+        #condition: unless-stopped  # Restart on non-zero exit code
+         condition: on-failure:5    # Max of 5 restarts
+        #condition: always          # Restart for any reason
+        # Source: https://blog.codeship.com/ensuring-containers-are-always-running-with-dockers-restart-policy/
