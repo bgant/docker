@@ -23,13 +23,19 @@ services:
   repository:
     image: registry:2
     ports:
-    - "5000:5000/tcp"
+      - "5000:5000/tcp"
+    volumes:
+      - registry:/var/lib/registry
     deploy: 
       placement:
         constraints: [node.role == manager]
       restart_policy:
         condition: on-failure
         max_attempts: 5
+
+volumes:
+    registry:
+        driver: local
 
 # New Swarm Restart options:
 # condition: none             # Do not restart failed container
