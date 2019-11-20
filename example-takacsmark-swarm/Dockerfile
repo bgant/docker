@@ -1,4 +1,5 @@
-FROM node:11.1.0-alpine
+FROM node:lts-alpine
+#FROM node:11.1.0-alpine
 
 WORKDIR /home/node
 
