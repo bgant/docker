@@ -1,6 +1,9 @@
 # Commands:
 #    docker stack deploy swarm -c docker-compose.yaml
 #    docker service update swarm_visualizer   <-- reload with new changes
+#
+#    http://localhost:8080
+#    http://localhost:5000/v2/_catalog
 
 version: "3"
 
