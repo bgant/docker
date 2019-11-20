@@ -21,7 +21,7 @@ services:
       restart_policy:
         condition: on-failure
         max_attempts: 5
-  repository:
+  registry:
     image: registry:2
     # Source: https://www.exoscale.com/syslog/setup-private-docker-registry/
     # Source: https://docs.docker.com/registry/deploying/
@@ -30,6 +30,18 @@ services:
     volumes:
       - registry:/var/lib/registry
     deploy: 
+      placement:
+        constraints: [node.role == manager]
+      restart_policy:
+        condition: on-failure
+        max_attempts: 5
+  nginx:
+    image: nginx:alpine
+    ports:
+      - "80:80/tcp"
+    volumes:
+      - ./nginx-proxy.conf:/etc/nginx/conf.d/nginx-proxy.conf
+    deploy:
       placement:
         constraints: [node.role == manager]
       restart_policy:
