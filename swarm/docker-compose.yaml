@@ -9,7 +9,8 @@ version: "3"
 
 services:
   visualizer:
-    image: dockersamples/visualizer:latest  # https://hub.docker.com/r/dockersamples/visualizer
+    image: dockersamples/visualizer:latest
+    # Source: https://hub.docker.com/r/dockersamples/visualizer
     volumes:
     - "/var/run/docker.sock:/var/run/docker.sock"
     ports:
@@ -22,6 +23,8 @@ services:
         max_attempts: 5
   repository:
     image: registry:2
+    # Source: https://www.exoscale.com/syslog/setup-private-docker-registry/
+    # Source: https://docs.docker.com/registry/deploying/
     ports:
       - "5000:5000/tcp"
     volumes:
