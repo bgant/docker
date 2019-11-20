@@ -16,7 +16,7 @@ services:
         constraints: [node.role == manager]
       restart_policy:
         condition: on-failure
-        max-attempts: 5
+        max_attempts: 5
 
 # New Swarm Restart options:
 # condition: none             # Do not restart failed container
