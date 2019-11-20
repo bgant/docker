@@ -1,23 +1,27 @@
-# docker stack deploy swarm -c docker-compose.yaml
-# docker service update swarm_visualizer   <-- reload with new changes
-#
-# Source: https://hub.docker.com/r/dockersamples/visualizer
+# Commands:
+#    docker stack deploy swarm -c docker-compose.yaml
+#    docker service update swarm_visualizer   <-- reload with new changes
 
 version: "3"
 
 services:
   visualizer:
-    image: dockersamples/visualizer
+    image: dockersamples/visualizer:latest  # https://hub.docker.com/r/dockersamples/visualizer
     volumes:
     - "/var/run/docker.sock:/var/run/docker.sock"
     ports:
     - "8080:8080/tcp"
-    deploy:
+    deploy:  # Settings for Swarm mode
       placement:
         constraints: [node.role == manager]
-      restart-policy:
-        #condition: no              # Default
-        #condition: unless-stopped  # Restart on non-zero exit code
-         condition: on-failure:5    # Max of 5 restarts
-        #condition: always          # Restart for any reason
-        # Source: https://blog.codeship.com/ensuring-containers-are-always-running-with-dockers-restart-policy/
+      restart_policy:
+        condition: on-failure
+        max-attempts: 5
+
+# New Swarm Restart options:
+# condition: none             # Do not restart failed container
+# condition: any              # Restart for any reason (Default)
+# condition: on-failure       # Restart on non-zero exit code
+# delay: 5s         # How long to wait before restart (Default: 0s)
+# max_attempts: 5   # How many tries (Default: infinite)
+# window: 120s      # How long to wait if restart a success (Default: immediate)
