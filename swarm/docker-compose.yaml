@@ -17,6 +17,16 @@ services:
       restart_policy:
         condition: on-failure
         max_attempts: 5
+  repository:
+    image: registry:2
+    ports:
+    - "5000:5000/tcp"
+    deploy: 
+      placement:
+        constraints: [node.role == manager]
+      restart_policy:
+        condition: on-failure
+        max_attempts: 5
 
 # New Swarm Restart options:
 # condition: none             # Do not restart failed container
