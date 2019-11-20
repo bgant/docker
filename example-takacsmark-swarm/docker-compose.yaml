@@ -6,6 +6,9 @@
 #    docker push registry-host:5000/swarm-example:1.0
 #    docker stack deploy nodeapp -c docker-compose.yaml
 #    docker service scale nodeapp_web=4
+#
+#    http://<address of any swarm node>
+#    Hit Shift+Reload in browser to see new hostnames
 
 version: '3'
 
