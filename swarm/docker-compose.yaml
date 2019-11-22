@@ -42,6 +42,8 @@ services:
   nginx-proxy:
     image: jwilder/nginx-proxy:latest
     # Source: https://github.com/jwilder/nginx-proxy
+    # Using mdns-publisher on host to broadcast Avahi CNAME's
+    #    mdns-publish-cname visualizer.local registry.local &
     ports:
       - "80:80/tcp"
     volumes:
