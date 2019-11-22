@@ -12,9 +12,11 @@ services:
     image: dockersamples/visualizer:latest
     # Source: https://hub.docker.com/r/dockersamples/visualizer
     volumes:
-    - "/var/run/docker.sock:/var/run/docker.sock"
+      - "/var/run/docker.sock:/var/run/docker.sock"
     ports:
-    - "8080:8080/tcp"
+      - "8080:8080/tcp"
+    environment:
+      - VIRTUAL_HOST=visualizer.local
     deploy:  # Settings for Swarm mode
       placement:
         constraints: [node.role == manager]
@@ -29,18 +31,20 @@ services:
       - "5000:5000/tcp"
     volumes:
       - registry:/var/lib/registry
+    environment:
+      - VIRTUAL_HOST=registry.local
     deploy: 
       placement:
         constraints: [node.role == manager]
       restart_policy:
         condition: on-failure
         max_attempts: 5
-  nginx:
-    image: nginx:alpine
+  nginx-proxy:
+    image: jwilder/nginx-proxy:latest
     ports:
       - "80:80/tcp"
     volumes:
-      - ./nginx-proxy.conf:/etc/nginx/conf.d/nginx-proxy.conf
+      - /var/run/docker.sock:/tmp/docker.sock:ro
     deploy:
       placement:
         constraints: [node.role == manager]
