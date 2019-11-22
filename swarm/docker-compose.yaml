@@ -41,6 +41,7 @@ services:
         max_attempts: 5
   nginx-proxy:
     image: jwilder/nginx-proxy:latest
+    # Source: https://github.com/jwilder/nginx-proxy
     ports:
       - "80:80/tcp"
     volumes:
