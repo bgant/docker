@@ -1,0 +1,56 @@
+# Source: https://wmartins.github.io/2017/10/creating-a-monitoring-stack-with-docker-swarm-grafana-influxdb-and-telegraf/
+
+version: "3.3"
+
+services:
+  telegraf:
+    image: telegraf:1.4.0
+    hostname: "{{.Node.ID}}"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    configs:
+      - source: telegraf.conf
+        target: /etc/telegraf/telegraf.conf
+    deploy:
+      mode: global
+      restart_policy:                      
+        condition: on-failure           
+        max_attempts: 5
+  influxdb:
+    image: influxdb:1.3.5-alpine
+    configs:
+      - source: influxdb.conf
+        target: /etc/influxdb/influxdb.conf
+    volumes:
+      - influxdb:/var/lib/influxdb
+    deploy:
+      placement:
+        constraints: [node.role == manager]
+      restart_policy:
+        condition: on-failure
+        max_attempts: 5
+  grafana:
+    image: grafana/grafana:4.5.2
+    ports:
+      - 3000:3000
+    volumes:
+      - grafana:/var/lib/grafana
+    deploy:
+      placement:
+        constraints: [node.role == manager]
+      restart_policy:                            
+        condition: on-failure                    
+        max_attempts: 5 
+
+configs:
+  telegraf.conf:
+    file: ./telegraf.conf
+  influxdb.conf:                           
+    file: ./influxdb.conf
+
+volumes:
+  grafana:
+    driver: local
+  influxdb:
+    driver: local
+
