@@ -3,7 +3,7 @@
 .bash_history
 
 # Ignore files holding secret information
-secrets.py
+authenticate.py
 
 example1/mysql/*
 example1/redis/*
