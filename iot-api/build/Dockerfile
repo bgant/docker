@@ -28,6 +28,7 @@ COPY flask-site-nginx.conf /etc/nginx/conf.d/
 COPY uwsgi.ini /etc/uwsgi/
 COPY supervisord.conf /etc/
 COPY flaskapp.py .
+COPY authenticate.py .
 
 # Install self-signed openssl files (create with generate-openssl.sh)
 # --OR--
