@@ -13,6 +13,7 @@ RUN apk add --no-cache \
     nginx \
     uwsgi \
     uwsgi-python \
+    py3-requests \
     supervisor && \
     python3 -m ensurepip && \
     rm -r /usr/lib/python*/ensurepip && \
@@ -28,7 +29,12 @@ COPY uwsgi.ini /etc/uwsgi/
 COPY supervisord.conf /etc/
 COPY flaskapp.py .
 
-# Install openssl files (create with generate-openssl.sh)
+# Install self-signed openssl files (create with generate-openssl.sh)
+# --OR--
+# Install Let's Encrypt Certificates
+#    sudo add-apt-repository ppa:certbot/certbot
+#    sudo apt install python-certbot-nginx
+#    sudo certbot --nginx -d mydomain.com -d www.mydomain.com
 #COPY localhost.crt /etc/ssl/certs/localhost.crt
 #COPY localhost.key /etc/ssl/private/localhost.key
 
