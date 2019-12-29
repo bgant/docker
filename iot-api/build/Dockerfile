@@ -1,5 +1,6 @@
 # Source: https://pythonforundergradengineers.com/flask-app-on-digital-ocean.html
 # Source: https://netdevops.me/2017/flask-application-in-a-production-ready-container/
+# Source: https://github.com/hellt/nginx-uwsgi-flask-alpine-docker/tree/master/python3
 
 FROM alpine:latest
 
