@@ -1,5 +1,3 @@
-# Source: https://github.com/polinchw/rancher-docker-compose/blob/master/docker-compose.yaml
-
 version: '3.3'
 
 services:
