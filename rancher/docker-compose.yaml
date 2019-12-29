@@ -1,0 +1,23 @@
+# Source: https://github.com/polinchw/rancher-docker-compose/blob/master/docker-compose.yaml
+
+version: '3.3'
+
+services:
+  rancher:
+    image: rancher/rancher:latest
+    ports:
+      - "443:443/tcp"
+    volumes:
+      - "rancher-data:/var/lib/rancher"
+    environment:
+      - VIRTUAL_HOST=rancher.local
+    deploy:  # Settings for Swarm mode
+      placement:
+        constraints: [node.role == manager]
+      restart_policy:
+        condition: on-failure
+        max_attempts: 5
+
+volumes:
+  rancher-data:
+    driver: local
