@@ -1,23 +1,73 @@
 # flaskapp.py
+# Source: https://pythonforundergradengineers.com/flask-iot-server-database.html
+# Source: https://likegeeks.com/python-sqlite3-tutorial/
+# Source: http://numericalexpert.com/blog/sqlite_blob_time/sqlite_time_etc.html
+# Source: https://stackoverflow.com/questions/4272908/sqlite-date-storage-and-conversion
 
 import requests
 from flask import Flask
 from authenticate import USER_LIST, CLIENTID_LIST
+from datetime import datetime
+import pytz
+import sqlite3
+
+dbfile = '/opt/data/data.db'
+
+# Open database or create file if it does not already exist
+conn = sqlite3.connect(dbfile, detect_types=sqlite3.PARSE_DECLTYPES)
+# Create Table structure if it does not already exist
+cursorObj = conn.cursor()
+cursorObj.execute('''
+        CREATE TABLE IF NOT EXISTS data (
+        key integer PRIMARY KEY AUTOINCREMENT,
+        [timestamp] timestamp,
+        user text,
+        clientid text,
+        field integer,
+        data real)
+        ''')
+conn.commit()
+conn.close()
+
+def sql_insert(conn, entities):
+    cursorObj = conn.cursor()
+    cursorObj.execute('INSERT INTO data(timestamp, user, clientid, field, data) VALUES(?, ? ,?, ?, ?)', entities)
+    conn.commit()
+
 app = Flask(__name__)
 
 @app.route("/")
 def index():
-    r = requests.get('https://api.thingspeak.com/channels/946198/fields/1/last.txt')
-    response = '<h1> The temperature is ' + str(round(float(r.text), 1)) + 'F</h1>'
-    return response
+    conn = sqlite3.connect(dbfile, detect_types=sqlite3.PARSE_DECLTYPES)
+    c = conn.cursor()
+    c.execute("SELECT data, timestamp, MAX(rowid) FROM data WHERE field=?", ('1',))
+    row1 = c.fetchone()
+    #c.execute("SELECT data, date_time, MAX(rowid) FROM data WHERE field=?", ('2',))
+    #row2 = c.fetchone()
+    conn.close()
+    #data1 = str(round((float(row1[0]) * 1.8) + 32))
+    #data2 = str(round((float(row2[0]) * 1.8) + 32))
+    #time_str1 = row1[1]
+    #t1 = dateutil.parser.parse(time_str1)
+    #t_pst1 = t1.astimezone(pytz.timezone('US/Pacific'))
+    #time_stamp1 = t_pst1.strftime('%I:%M:%S %p   %b %d, %Y')
+    #time_str2 = row2[1]
+    #t2 = dateutil.parser.parse(time_str2)
+    #t_pst2 = t2.astimezone(pytz.timezone('US/Pacific'))
+    #time_stamp2 = t_pst2.strftime('%I:%M:%S %p   %b %d, %Y')
+    return row1
 
 @app.route("/update/user=<user>/clientid=<clientid>/field=<int:field>/data=<data>", methods=['GET'])
 def write_data_point(user, clientid, field, data):
     if (str(user) in USER_LIST and str(clientid) in CLIENTID_LIST):
+        conn = sqlite3.connect(dbfile, detect_types=sqlite3.PARSE_DECLTYPES)
+        timestamp = datetime.now(tz=pytz.utc)
+        entities = (timestamp, str(user), str(clientid), int(field), round(float(data), 2))
+        sql_insert(conn, entities)
+        conn.close()
         return data
     else:
         return "Failed"
-    #return render_template("update.html", data=data)
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0')
+    app.run(host='0.0.0.0', port=5000)
