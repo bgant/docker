@@ -46,6 +46,7 @@ def sql_last(user, clientid, field):
 
 app = Flask(__name__)
 
+# Usage: http://<SERVER>/last?user=TOM&clientid=999&field=1
 #@app.route("/last/user=<user>&clientid=<clientid>&field=<int:field>", methods=['GET'])
 #def index(user, clientid, field):
 @app.route("/last", methods=['GET'])
@@ -56,6 +57,7 @@ def last():
     last_entry = sql_last(user, clientid, field)
     return str(last_entry)
 
+# Usage: http://<SERVER>/update?user=TOM&clientid=999&field=1&data=77.8
 #@app.route("/update/user=<user>&clientid=<clientid>&field=<int:field>&data=<data>", methods=['GET'])
 #def write_data_point(user, clientid, field, data):
 @app.route("/update", methods=['GET'])
