@@ -5,7 +5,7 @@
 # Source: https://stackoverflow.com/questions/4272908/sqlite-date-storage-and-conversion
 
 import requests
-from flask import Flask
+from flask import Flask, request
 from authenticate import USER_LIST, CLIENTID_LIST
 from datetime import datetime
 import pytz
@@ -46,13 +46,25 @@ def sql_last(user, clientid, field):
 
 app = Flask(__name__)
 
-@app.route("/last/user=<user>&clientid=<clientid>&field=<int:field>", methods=['GET'])
-def index(user, clientid, field):
+#@app.route("/last/user=<user>&clientid=<clientid>&field=<int:field>", methods=['GET'])
+#def index(user, clientid, field):
+@app.route("/last", methods=['GET'])
+def last():
+    user = request.args.get('user', type=str)
+    clientid = request.args.get('clientid', type=str)
+    field = request.args.get('field', default = 1, type=int)
     last_entry = sql_last(user, clientid, field)
     return str(last_entry)
 
-@app.route("/update/user=<user>&clientid=<clientid>&field=<int:field>&data=<data>", methods=['GET'])
-def write_data_point(user, clientid, field, data):
+#@app.route("/update/user=<user>&clientid=<clientid>&field=<int:field>&data=<data>", methods=['GET'])
+#def write_data_point(user, clientid, field, data):
+@app.route("/update", methods=['GET'])
+def update():
+    user = request.args.get('user', type=str)                                                                          
+    clientid = request.args.get('clientid', type=str)                                                                  
+    field = request.args.get('field', default = 1, type=int)   
+    data = request.args.get('data', type=float)
+
     if (str(user) in USER_LIST and str(clientid) in CLIENTID_LIST):
         timestamp = datetime.now(tz=pytz.utc)
         entities = (timestamp, str(user), str(clientid), int(field), round(float(data), 2))
