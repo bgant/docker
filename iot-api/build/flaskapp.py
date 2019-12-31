@@ -34,17 +34,22 @@ def sql_insert(conn, entities):
     cursorObj.execute('INSERT INTO data(timestamp, user, clientid, field, data) VALUES(?, ? ,?, ?, ?)', entities)
     conn.commit()
 
+def sql_last(user, clientid, field):
+    conn = sqlite3.connect(dbfile, detect_types=sqlite3.PARSE_DECLTYPES)
+    cursorObj = conn.cursor()                                                                                    
+    cursorObj.execute("SELECT data, timestamp, MAX(rowid) FROM data WHERE user=? AND clientid=? AND field=?", (user, clientid, field,))                      
+    last_data, last_timestamp, *other = cursorObj.fetchone()
+    conn.close()
+    return str(last_timestamp.isoformat()) + '   ' + str(last_data)
+
 app = Flask(__name__)
 
-@app.route("/")
-def index():
-    conn = sqlite3.connect(dbfile, detect_types=sqlite3.PARSE_DECLTYPES)
-    c = conn.cursor()
-    c.execute("SELECT data, timestamp, MAX(rowid) FROM data WHERE field=?", ('1',))
-    row1 = c.fetchone()
+@app.route("/last/user=<user>&clientid=<clientid>&field=<int:field>", methods=['GET'])
+def index(user, clientid, field):
+    last_entry = sql_last(user, clientid, field)
+
     #c.execute("SELECT data, date_time, MAX(rowid) FROM data WHERE field=?", ('2',))
     #row2 = c.fetchone()
-    conn.close()
     #data1 = str(round((float(row1[0]) * 1.8) + 32))
     #data2 = str(round((float(row2[0]) * 1.8) + 32))
     #time_str1 = row1[1]
@@ -55,17 +60,21 @@ def index():
     #t2 = dateutil.parser.parse(time_str2)
     #t_pst2 = t2.astimezone(pytz.timezone('US/Pacific'))
     #time_stamp2 = t_pst2.strftime('%I:%M:%S %p   %b %d, %Y')
-    return row1
 
-@app.route("/update/user=<user>/clientid=<clientid>/field=<int:field>/data=<data>", methods=['GET'])
+    return last_entry
+
+@app.route("/update/user=<user>&clientid=<clientid>&field=<int:field>&data=<data>", methods=['GET'])
 def write_data_point(user, clientid, field, data):
     if (str(user) in USER_LIST and str(clientid) in CLIENTID_LIST):
-        conn = sqlite3.connect(dbfile, detect_types=sqlite3.PARSE_DECLTYPES)
         timestamp = datetime.now(tz=pytz.utc)
         entities = (timestamp, str(user), str(clientid), int(field), round(float(data), 2))
+
+        conn = sqlite3.connect(dbfile, detect_types=sqlite3.PARSE_DECLTYPES)
         sql_insert(conn, entities)
         conn.close()
+
         return data
+
     else:
         return "Failed"
 
