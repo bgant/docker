@@ -4,6 +4,8 @@
 
 # Ignore files holding secret information
 authenticate.py
+localhost.crt
+localhost.key
 
 example1/mysql/*
 example1/redis/*
