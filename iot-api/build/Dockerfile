@@ -14,7 +14,6 @@ RUN apk add --no-cache \
     uwsgi \
     uwsgi-python \
     py3-requests \
-    py3-tz \
     supervisor
 
 # Update pip and install packages

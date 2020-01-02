@@ -7,8 +7,7 @@
 import requests
 from flask import Flask, request
 from authenticate import USER_LIST, CLIENTID_LIST
-from datetime import datetime
-import pytz
+from datetime import datetime, timezone
 import sqlite3
 
 dbfile = '/opt/data/data.db'
@@ -68,7 +67,7 @@ def update():
     data = request.args.get('data', type=float)
 
     if (str(user) in USER_LIST and str(clientid) in CLIENTID_LIST):
-        timestamp = datetime.now(tz=pytz.utc)
+        timestamp = datetime.now(timezone.utc)
         entities = (timestamp, str(user), str(clientid), int(field), round(float(data), 2))
         sql_insert(conn, entities)
         return str(data)
