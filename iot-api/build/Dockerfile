@@ -13,7 +13,6 @@ RUN apk add --no-cache \
     nginx \
     uwsgi \
     uwsgi-python \
-    py3-requests \
     supervisor
 
 # Update pip and install packages

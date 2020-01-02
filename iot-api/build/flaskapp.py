@@ -4,7 +4,6 @@
 # Source: http://numericalexpert.com/blog/sqlite_blob_time/sqlite_time_etc.html
 # Source: https://stackoverflow.com/questions/4272908/sqlite-date-storage-and-conversion
 
-import requests
 from flask import Flask, request
 from authenticate import USER_LIST, CLIENTID_LIST
 from datetime import datetime, timezone
