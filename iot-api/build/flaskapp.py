@@ -85,7 +85,7 @@ def last():
     else:
         return None
 
-# ThingSpeak Format: https://api.thingspeak.com/channels/946198/fields/1/last.txt
+# ThingSpeak Text Format: https://api.thingspeak.com/channels/946198/fields/1/last.txt
 @app.route("/channels/<api_key>/fields/<field>/last.txt", methods=['GET'])
 def last_txt(api_key, field):
     last_timestamp, last_field1, last_field2 = sql_last(api_key)
@@ -93,6 +93,24 @@ def last_txt(api_key, field):
         return str(last_field1)
     elif field == '2':
         return str(last_field2)
+    else:
+        return None
+
+# ThingSpeak JSON Format: https://api.thingspeak.com/channels/946198/fields/1/last.json
+#       Example Response: {"created_at":"2020-01-02T20:47:35Z","entry_id":3306,"field1":"70.6"}
+@app.route("/channels/<api_key>/fields/<field>/last.json", methods=['GET'])
+def last_json(api_key, field):
+    last_timestamp, last_field1, last_field2 = sql_last(api_key)
+    last_timestamp_string = last_timestamp.isoformat().split('.')[0] + 'Z'  # Convert to ThingSpeak format
+    import json
+    if field == '1':
+        output_dict = {'created_at': last_timestamp_string, 'entry_id': 9999, 'field1': last_field1}
+        output_json = json.dumps(output_dict)
+        return str(output_json)
+    elif field == '2':
+        output_dict = {'created_at': last_timestamp_string, 'entry_id': 9999, 'field2': last_field2}
+        output_json = json.dumps(output_dict) 
+        return str(output_json)
     else:
         return None
 
