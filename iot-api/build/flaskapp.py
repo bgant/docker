@@ -4,7 +4,7 @@
 # Source: http://numericalexpert.com/blog/sqlite_blob_time/sqlite_time_etc.html
 # Source: https://stackoverflow.com/questions/4272908/sqlite-date-storage-and-conversion
 
-from flask import Flask, request
+from flask import Flask, request, Response
 from authenticate import API_KEY
 from datetime import datetime, timezone
 import sqlite3
@@ -80,19 +80,16 @@ def sql_last(api_key):
 def last():
     api_key = request.args.get('channel', type=str)
     last_timestamp, last_field1, last_field2 = sql_last(api_key)
-    if last_timestamp:
-        return str(last_timestamp.isoformat()) + '   ' + str(last_field1) + '   ' + str(last_field2)
-    else:
-        return None
+    return str(last_timestamp.isoformat()) + '   ' + str(last_field1) + '   ' + str(last_field2)
 
 # ThingSpeak Text Format: https://api.thingspeak.com/channels/946198/fields/1/last.txt
 @app.route("/channels/<api_key>/fields/<field>/last.txt", methods=['GET'])
 def last_txt(api_key, field):
     last_timestamp, last_field1, last_field2 = sql_last(api_key)
     if field == '1':
-        return str(last_field1)
+        return Response(str(last_field1), mimetype='text/plain')
     elif field == '2':
-        return str(last_field2)
+        return Response(str(last_field2), mimetype='text/plain')
     else:
         return None
 
@@ -106,11 +103,12 @@ def last_json(api_key, field):
     if field == '1':
         output_dict = {'created_at': last_timestamp_string, 'entry_id': 9999, 'field1': last_field1}
         output_json = json.dumps(output_dict)
-        return str(output_json)
+        #return str(output_json)
+        return Response(output_json, mimetype='application/json')
     elif field == '2':
         output_dict = {'created_at': last_timestamp_string, 'entry_id': 9999, 'field2': last_field2}
         output_json = json.dumps(output_dict) 
-        return str(output_json)
+        return Response(output_json, mimetype='application/json')
     else:
         return None
 
