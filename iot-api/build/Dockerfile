@@ -43,8 +43,8 @@ COPY authenticate.py .
 #    sudo add-apt-repository ppa:certbot/certbot
 #    sudo apt install python-certbot-nginx
 #    sudo certbot --nginx -d mydomain.com -d www.mydomain.com
-COPY localhost.crt /etc/ssl/certs/localhost.crt
-COPY localhost.key /etc/ssl/private/localhost.key
+#COPY localhost.crt /etc/ssl/certs/localhost.crt
+#COPY localhost.key /etc/ssl/private/localhost.key
 
 #CMD ["python", "/root/flaskapp.py"]
 #CMD uwsgi --socket 0.0.0.0:5000 --protocol=http -w wsgi:app
