@@ -23,7 +23,7 @@ RUN apk update && apk add php7-gd php7-intl php7-pecl-apcu php7-zip imagemagick 
 RUN mv /etc/php7/php-fpm.d/www.conf /etc/php7/php-fpm.d/www.conf.disabled
 COPY docker.conf /etc/php7/php-fpm.d/
 
-RUN ln -sf /dev/stdout /var/log/php7/error.log
+RUN ln -sf /dev/stderr /var/log/php7/error.log
 
 WORKDIR /var/www/html
 EXPOSE 9000
