@@ -71,21 +71,21 @@ def sql_last(api_key):
     conn = sqlite3.connect(dbfile, detect_types=sqlite3.PARSE_DECLTYPES)
     cursorObj = conn.cursor()                                                                                    
     cursorObj.execute("SELECT timestamp, field1, field2, MAX(rowid) FROM data WHERE api_key=?", (api_key,)) # api_key is a tuple of one
-    last_timestamp, last_field1, last_field2, *other = cursorObj.fetchone()
+    last_timestamp, last_field1, last_field2, entry_id = cursorObj.fetchone()
     conn.close()
-    return (last_timestamp, last_field1, last_field2)
+    return (last_timestamp, last_field1, last_field2, entry_id)
 
 # Usage: http://<SERVER>/last?channel=TOM
 @app.route("/last", methods=['GET'])
 def last():
     api_key = request.args.get('channel', type=str)
-    last_timestamp, last_field1, last_field2 = sql_last(api_key)
+    last_timestamp, last_field1, last_field2, entry_id = sql_last(api_key)
     return str(last_timestamp.isoformat()) + '   ' + str(last_field1) + '   ' + str(last_field2)
 
 # ThingSpeak Text Format: https://api.thingspeak.com/channels/946198/fields/1/last.txt
 @app.route("/channels/<api_key>/fields/<field>/last.txt", methods=['GET'])
 def last_txt(api_key, field):
-    last_timestamp, last_field1, last_field2 = sql_last(api_key)
+    last_timestamp, last_field1, last_field2, entry_id = sql_last(api_key)
     if field == '1':
         return Response(str(last_field1), mimetype='text/plain')
     elif field == '2':
@@ -97,16 +97,16 @@ def last_txt(api_key, field):
 #       Example Response: {"created_at":"2020-01-02T20:47:35Z","entry_id":3306,"field1":"70.6"}
 @app.route("/channels/<api_key>/fields/<field>/last.json", methods=['GET'])
 def last_json(api_key, field):
-    last_timestamp, last_field1, last_field2 = sql_last(api_key)
+    last_timestamp, last_field1, last_field2, entry_id = sql_last(api_key)
     last_timestamp_string = last_timestamp.isoformat().split('.')[0] + 'Z'  # Convert to ThingSpeak format
     import json
     if field == '1':
-        output_dict = {'created_at': last_timestamp_string, 'entry_id': 9999, 'field1': last_field1}
+        output_dict = {'created_at': last_timestamp_string, 'entry_id': entry_id, 'field1': last_field1}
         output_json = json.dumps(output_dict)
         #return str(output_json)
         return Response(output_json, mimetype='application/json')
     elif field == '2':
-        output_dict = {'created_at': last_timestamp_string, 'entry_id': 9999, 'field2': last_field2}
+        output_dict = {'created_at': last_timestamp_string, 'entry_id': entry_id, 'field2': last_field2}
         output_json = json.dumps(output_dict) 
         return Response(output_json, mimetype='application/json')
     else:
