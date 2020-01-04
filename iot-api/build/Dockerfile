@@ -46,6 +46,11 @@ COPY authenticate.py .
 COPY localhost.crt /etc/ssl/certs/localhost.crt
 COPY localhost.key /etc/ssl/private/localhost.key
 
+# Avoid creating logs in the container
+# View logs with: docker service logs --follow iot-api_app
+RUN ln -sf /dev/stdout /var/log/nginx/access.log \
+  && ln -sf /dev/stderr /var/log/nginx/error.log
+
 #CMD ["python", "/root/flaskapp.py"]
 #CMD uwsgi --socket 0.0.0.0:5000 --protocol=http -w wsgi:app
 #CMD ["nginx", "-g", "daemon off;"] 
