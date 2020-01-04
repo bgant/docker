@@ -6,7 +6,7 @@ services:
     image: iot-api
     container_name: iot-api
     ports:
-      - "8088:80/tcp"
+      - "8001:80/tcp"
       - "44301:443/tcp"
     volumes:
       - iot-data:/opt/data
