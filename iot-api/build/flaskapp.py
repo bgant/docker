@@ -148,25 +148,33 @@ def last_json(channel, field):
 # Request ThingSpeak styled feed.json                                                                                                              
 ##########################################################################
 
-def sql_feed(api_key, results):                                                                                                                 
+def sql_feed(channel, results):                                                                                                                 
     conn = sqlite3.connect(dbfile, detect_types=sqlite3.PARSE_DECLTYPES)                                                               
     cursorObj = conn.cursor()                                                                                                          
+    api_key = find_api_key(channel)
     cursorObj.execute("SELECT key, timestamp, field1, field2 FROM data WHERE api_key=? ORDER BY key DESC LIMIT ?;", (api_key,results)) # api_key is a tuple of one
     records = cursorObj.fetchall()
-    for row in records:
-        entry_id, timestamp, field1, field2 = row                                              
-        # Add json format feed data to response
-    conn.close()                                                                                                                       
-    return (last_timestamp, last_field1, last_field2, entry_id)
 
-# ThingSpeak JSON Format: https://api.thingspeak.com/channels/946198/feeds.json?results=50                                             
+    response = feed_info(channel)
+    feeds = response['feeds']
+    feeds.clear()  # Clear list each time function runs
+
+    for row in records:
+        key, timestamp, field1, field2 = row                                              
+        timestamp_string = timestamp.isoformat().split('.')[0] + 'Z'  # Convert to ThingSpeak format
+        output_dict = {'created_at': timestamp_string, 'entry_id': key, 'field1': field1, 'field2': field2}
+        feeds.append(output_dict)
+    conn.close()                                                                                                                       
+    return response
+
+# ThingSpeak JSON Format: https://api.thingspeak.com/channels/946198/feeds.json?results=50&api_key=&timezone=America/Chicago
 @app.route("/channels/<channel>/feeds.json", methods=['GET'])                                                            
 def feeds_json(channel):  
-    results = request.args.get('results', type=int)
+    results = request.args.get('results', default=10, type=int)
+    timezone = request.args.get('timezone', type=str)
     api_key = find_api_key(channel)
     if api_key:
-        response = feed_info(channel)
-        # <add database data to response>
+        response = sql_feed(channel, results)
         import json
         response_json = json.dumps(response)
         return Response(response_json, mimetype='application/json')
