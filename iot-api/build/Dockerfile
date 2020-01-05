@@ -26,9 +26,22 @@ RUN python3 -m ensurepip && \
 RUN rm /etc/nginx/conf.d/default.conf && \
     mkdir /run/nginx && \
     rm -r /root/.cache
+# Avoid creating logs in the container                                   
+# View logs with: docker service logs --follow iot-api_app               
+RUN ln -sf /dev/stdout /var/log/nginx/access.log \                       
+  && ln -sf /dev/stderr /var/log/nginx/error.log 
 
 # Create database directory                                              
 RUN mkdir /opt/data && chown nginx:nginx /opt/data && chmod 770 /opt/data
+
+# Install self-signed openssl files (create with generate-openssl.sh)    
+# --OR--                                                                 
+# Install Let's Encrypt Certificates                                     
+#    sudo add-apt-repository ppa:certbot/certbot                         
+#    sudo apt install python-certbot-nginx                               
+#    sudo certbot --nginx -d mydomain.com -d www.mydomain.com            
+COPY localhost.crt /etc/ssl/certs/localhost.crt                          
+COPY localhost.key /etc/ssl/private/localhost.key  
 
 # Copy over configuration files
 COPY flask-site-nginx.conf /etc/nginx/conf.d/
@@ -36,20 +49,6 @@ COPY uwsgi.ini /etc/uwsgi/
 COPY supervisord.conf /etc/
 COPY flaskapp.py .
 COPY authenticate.py .
-
-# Install self-signed openssl files (create with generate-openssl.sh)
-# --OR--
-# Install Let's Encrypt Certificates
-#    sudo add-apt-repository ppa:certbot/certbot
-#    sudo apt install python-certbot-nginx
-#    sudo certbot --nginx -d mydomain.com -d www.mydomain.com
-COPY localhost.crt /etc/ssl/certs/localhost.crt
-COPY localhost.key /etc/ssl/private/localhost.key
-
-# Avoid creating logs in the container
-# View logs with: docker service logs --follow iot-api_app
-RUN ln -sf /dev/stdout /var/log/nginx/access.log \
-  && ln -sf /dev/stderr /var/log/nginx/error.log
 
 #CMD ["python", "/root/flaskapp.py"]
 #CMD uwsgi --socket 0.0.0.0:5000 --protocol=http -w wsgi:app
