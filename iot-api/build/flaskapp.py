@@ -175,6 +175,8 @@ def feeds_json(channel):
     api_key = find_api_key(channel)
     if api_key:
         response = sql_feed(channel, results)
+        response['channel']['last_entry_id'] = response['feeds'][0]['entry_id']  # Set channel last_entry_id
+        response['channel']['updated_at'] = response['feeds'][0]['created_at']   # Set channel updated_at
         import json
         response_json = json.dumps(response)
         return Response(response_json, mimetype='application/json')
