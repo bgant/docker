@@ -5,7 +5,7 @@
 # Source: https://stackoverflow.com/questions/4272908/sqlite-date-storage-and-conversion
 
 from flask import Flask, request, Response
-from authenticate import API_KEY
+from authenticate import API_KEY, CHANNELS
 from datetime import datetime, timezone
 import sqlite3
 
@@ -60,7 +60,26 @@ def update():
         sql_insert(entities)
         return str(field1)
     else:
-        return "Failed"
+        return Response('Failed', status=403, mimetype='text/plain')
+
+
+##########################################################################                                                             
+# Associate CHANNEL and API_KEY                                                                                                              
+##########################################################################
+
+def find_api_key(channel):
+    api_key = None
+    for x in CHANNELS:
+        if x['response']['channel']['id'] == channel:
+            api_key = x['api_key']
+    return api_key
+
+def feed_info(channel):
+    response = None
+    for x in CHANNELS:                                                                                                                 
+        if x['response']['channel']['id'] == channel:                                                                                  
+            response = x['response']                                                                                                   
+    return response
 
 
 ##########################################################################
@@ -78,39 +97,51 @@ def sql_last(api_key):
 # Usage: http://<SERVER>/last?channel=TOM
 @app.route("/last", methods=['GET'])
 def last():
-    api_key = request.args.get('channel', type=str)
-    last_timestamp, last_field1, last_field2, entry_id = sql_last(api_key)
-    return str(last_timestamp.isoformat()) + '   ' + str(last_field1) + '   ' + str(last_field2)
+    channel = request.args.get('channel', type=str)
+    api_key = find_api_key(channel)
+    if api_key:
+        last_timestamp, last_field1, last_field2, entry_id = sql_last(api_key)
+        return str(last_timestamp.isoformat()) + '   ' + str(last_field1) + '   ' + str(last_field2)
+    else:
+        return Response('Failed', status=403, mimetype='text/plain') 
 
 # ThingSpeak Text Format: https://api.thingspeak.com/channels/946198/fields/1/last.txt
-@app.route("/channels/<api_key>/fields/<field>/last.txt", methods=['GET'])
-def last_txt(api_key, field):
-    last_timestamp, last_field1, last_field2, entry_id = sql_last(api_key)
-    if field == '1':
-        return Response(str(last_field1), mimetype='text/plain')
-    elif field == '2':
-        return Response(str(last_field2), mimetype='text/plain')
+@app.route("/channels/<channel>/fields/<field>/last.txt", methods=['GET'])
+def last_txt(channel, field):
+    api_key = find_api_key(channel)
+    if api_key:
+        last_timestamp, last_field1, last_field2, entry_id = sql_last(api_key)
+        if field == '1':
+            return Response(str(last_field1), mimetype='text/plain')
+        elif field == '2':
+            return Response(str(last_field2), mimetype='text/plain')
+        else:
+            return Response('Failed', status=403, mimetype='text/plain')
     else:
-        return None
+        return Response('Failed', status=403, mimetype='text/plain')
 
 # ThingSpeak JSON Format: https://api.thingspeak.com/channels/946198/fields/1/last.json
 #       Example Response: {"created_at":"2020-01-02T20:47:35Z","entry_id":3306,"field1":"70.6"}
-@app.route("/channels/<api_key>/fields/<field>/last.json", methods=['GET'])
-def last_json(api_key, field):
-    last_timestamp, last_field1, last_field2, entry_id = sql_last(api_key)
-    last_timestamp_string = last_timestamp.isoformat().split('.')[0] + 'Z'  # Convert to ThingSpeak format
-    import json
-    if field == '1':
-        output_dict = {'created_at': last_timestamp_string, 'entry_id': entry_id, 'field1': last_field1}
-        output_json = json.dumps(output_dict)
-        #return str(output_json)
-        return Response(output_json, mimetype='application/json')
-    elif field == '2':
-        output_dict = {'created_at': last_timestamp_string, 'entry_id': entry_id, 'field2': last_field2}
-        output_json = json.dumps(output_dict) 
-        return Response(output_json, mimetype='application/json')
+@app.route("/channels/<channel>/fields/<field>/last.json", methods=['GET'])
+def last_json(channel, field):
+    api_key = find_api_key(channel)
+    if api_key:
+        last_timestamp, last_field1, last_field2, entry_id = sql_last(api_key)
+        last_timestamp_string = last_timestamp.isoformat().split('.')[0] + 'Z'  # Convert to ThingSpeak format
+        import json
+        if field == '1':
+            output_dict = {'created_at': last_timestamp_string, 'entry_id': entry_id, 'field1': last_field1}
+            output_json = json.dumps(output_dict)
+            #return str(output_json)
+            return Response(output_json, mimetype='application/json')
+        elif field == '2':
+            output_dict = {'created_at': last_timestamp_string, 'entry_id': entry_id, 'field2': last_field2}
+            output_json = json.dumps(output_dict) 
+            return Response(output_json, mimetype='application/json')
+        else:
+            return Response('Failed', status=403, mimetype='text/plain')
     else:
-        return None
+        return Response('Failed', status=403, mimetype='text/plain')
 
 
 if __name__ == "__main__":
