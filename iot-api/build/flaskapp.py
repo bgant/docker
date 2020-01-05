@@ -94,7 +94,7 @@ def sql_last(api_key):
     conn.close()
     return (last_timestamp, last_field1, last_field2, entry_id)
 
-# Usage: http://<SERVER>/last?channel=TOM
+# Usage: http://<SERVER>/last?channel=<numeric>
 @app.route("/last", methods=['GET'])
 def last():
     channel = request.args.get('channel', type=str)
@@ -140,6 +140,36 @@ def last_json(channel, field):
             return Response(output_json, mimetype='application/json')
         else:
             return Response('Failed', status=403, mimetype='text/plain')
+    else:
+        return Response('Failed', status=403, mimetype='text/plain')
+
+
+##########################################################################                                                             
+# Request ThingSpeak styled feed.json                                                                                                              
+##########################################################################
+
+def sql_feed(api_key, results):                                                                                                                 
+    conn = sqlite3.connect(dbfile, detect_types=sqlite3.PARSE_DECLTYPES)                                                               
+    cursorObj = conn.cursor()                                                                                                          
+    cursorObj.execute("SELECT key, timestamp, field1, field2 FROM data WHERE api_key=? ORDER BY key DESC LIMIT ?;", (api_key,results)) # api_key is a tuple of one
+    records = cursorObj.fetchall()
+    for row in records:
+        entry_id, timestamp, field1, field2 = row                                              
+        # Add json format feed data to response
+    conn.close()                                                                                                                       
+    return (last_timestamp, last_field1, last_field2, entry_id)
+
+# ThingSpeak JSON Format: https://api.thingspeak.com/channels/946198/feeds.json?results=50                                             
+@app.route("/channels/<channel>/feeds.json", methods=['GET'])                                                            
+def feeds_json(channel):  
+    results = request.args.get('results', type=int)
+    api_key = find_api_key(channel)
+    if api_key:
+        response = feed_info(channel)
+        # <add database data to response>
+        import json
+        response_json = json.dumps(response)
+        return Response(response_json, mimetype='application/json')
     else:
         return Response('Failed', status=403, mimetype='text/plain')
 
