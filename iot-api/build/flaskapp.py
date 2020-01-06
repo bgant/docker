@@ -24,7 +24,7 @@ conn = sqlite3.connect(dbfile, detect_types=sqlite3.PARSE_DECLTYPES)
 cursorObj = conn.cursor()
 cursorObj.execute('''
         CREATE TABLE IF NOT EXISTS data (
-        key integer PRIMARY KEY AUTOINCREMENT,
+        key integer PRIMARY KEY,
         [timestamp] timestamp,
         api_key text,
         field1 real,
