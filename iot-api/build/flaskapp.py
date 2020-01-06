@@ -9,6 +9,7 @@ from authenticate import API_KEY, CHANNELS
 from datetime import datetime, timezone
 import pytz
 import sqlite3
+import json
 
 dbfile = '/opt/data/data.db'
 
@@ -33,6 +34,48 @@ cursorObj.execute('''
         ''')
 conn.commit()
 conn.close()
+
+
+##########################################################################
+# Input Validation
+##########################################################################
+
+# api_key is Alphanumeric
+def valid_api_key(api_key):
+    if api_key.isalnum():
+        return True
+    else:
+        return False
+
+# channel is Numeric in ThingSpeak but Alphanumeric might be find too
+def valid_channel(channel):
+    if str(channel).isnumeric():
+    #if str(channel).isalnum():
+        return True
+    else:
+        return False
+
+# results is Numeric [0-9] (no minus sign)
+def valid_results(results):
+    if str(results).isnumeric():
+        return True
+    else:
+        return False 
+
+# field1 and field2 are Floaiting Point Numbers
+def valid_field(field):
+    try:
+        float(field)
+        return True
+    except:
+        return False
+
+# timezone is Alphabet plus '/'
+def valid_timezone(timezone):
+    if timezone.replace('/', '').isalpha():
+        return True
+    else:
+        return False
 
 
 ##########################################################################
@@ -153,7 +196,7 @@ def sql_feed(channel, results, timezone):
     conn = sqlite3.connect(dbfile, detect_types=sqlite3.PARSE_DECLTYPES)
     cursorObj = conn.cursor()
     api_key = find_api_key(channel)
-    cursorObj.execute("SELECT key, timestamp, field1, field2 FROM data WHERE api_key=? ORDER BY key DESC LIMIT ?;", (api_key,results)) # api_key is a tuple of one
+    cursorObj.execute("SELECT key, timestamp, field1, field2 FROM data WHERE api_key=? ORDER BY key DESC LIMIT ?;", (api_key, results))  # Must be a Tuple even if only one variable: i.e. (api_key,)
     records = cursorObj.fetchall()
 
     response = feed_info(channel)
@@ -177,34 +220,37 @@ def sql_feed(channel, results, timezone):
 # ThingSpeak JSON Format: https://api.thingspeak.com/channels/946198/feeds.json?results=50&api_key=&timezone=America/Chicago
 @app.route("/channels/<channel>/feeds.json", methods=['GET'])
 def feeds_json(channel): 
-    results = request.args.get('results', default=10, type=int)
+    results = request.args.get('results', default=10, type=int)  # non-digits ignored
     timezone = request.args.get('timezone', default='US/Central', type=str)
 
-    # Handle timezone requests
-    try:
-        pytz.timezone(timezone)
-    except:
-        return Response('Unknown Timezone', status=403, mimetype='text/plain')
+    if valid_channel(channel) and valid_results(results) and valid_timezone(timezone):
+        # Handle timezone requests
+        try:
+            pytz.timezone(timezone)
+        except:
+            return Response('Unknown Timezone', status=403, mimetype='text/plain')
 
-    # Handle results=0 requests from Android IoT ThingSpeak Monitor Widget
-    if results < 1:
-        empty_feed = True
-        results = 1
-    else:
-        empty_feed = False
+        # Handle results=0 requests from Android IoT ThingSpeak Monitor Widget
+        if results == 0:
+            empty_feed = True
+            results = 1  # To get last entry_id and created_at before clearing list
+        elif results > 10:
+            results = 10
+            empty_feed = False
+        else:
+            empty_feed = False
 
-    api_key = find_api_key(channel)
-    if api_key:
-        response = sql_feed(channel, results, timezone)
-        response['channel']['last_entry_id'] = response['feeds'][-1]['entry_id']  # Set channel last_entry_id
-        response['channel']['updated_at'] = response['feeds'][-1]['created_at']   # Set channel updated_at
-        if empty_feed:
-           response['feeds'].clear() 
-        import json
-        response_json = json.dumps(response)
-        return Response(response_json, mimetype='application/json')
-    else:
-        return Response('Failed', status=403, mimetype='text/plain')
+        api_key = find_api_key(channel)
+        if api_key:
+            response = sql_feed(channel, results, timezone)
+            response['channel']['last_entry_id'] = response['feeds'][-1]['entry_id']  # Set channel last_entry_id
+            response['channel']['updated_at'] = response['feeds'][-1]['created_at']   # Set channel updated_at
+            if empty_feed:
+               response['feeds'].clear() 
+            response_json = json.dumps(response)
+            return Response(response_json, mimetype='application/json')
+
+    return Response('Failed', status=403, mimetype='text/plain')
 
 
 if __name__ == "__main__":
