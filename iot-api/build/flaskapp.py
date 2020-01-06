@@ -101,9 +101,8 @@ def update():
     field2 = request.args.get('field2', default=None, type=float)
 
     if valid_api_key(api_key) and str(api_key) in API_KEY:
-        timestamp = datetime.timestamp(datetime.now())  # Floating Point Number
-        
         if field1 and valid_field(field1):  # field2 can be empty or float (nothing else allowed)
+            timestamp = datetime.timestamp(datetime.now())  # Floating Point Number
             entities = (timestamp, api_key, field1, field2)
             sql_insert(entities)
             return Response(str(field1) + '  ' + str(field2), mimetype='text/plain')
@@ -115,6 +114,7 @@ def update():
 # Associate CHANNEL & API_KEY
 ##########################################################################
 
+# Find api_key in authenticate.py CHANNELS using channel
 def find_api_key(channel):
     api_key = None
     for x in CHANNELS:
@@ -122,6 +122,7 @@ def find_api_key(channel):
             api_key = x['api_key']
     return api_key
 
+# Find correct response JSON in authenticate.py CHANNELS
 def feed_info(channel):
     response = None
     for x in CHANNELS:
@@ -146,9 +147,9 @@ def sql_last(api_key):
     conn = sqlite3.connect(dbfile, detect_types=sqlite3.PARSE_DECLTYPES)
     cursorObj = conn.cursor()
     cursorObj.execute("SELECT timestamp, field1, field2, MAX(rowid) FROM data WHERE api_key=?", (api_key,)) # api_key is a tuple of one
-    last_timestamp, last_field1, last_field2, entry_id = cursorObj.fetchone()
+    timestamp, field1, field2, entry_id = cursorObj.fetchone()
     conn.close()
-    return (last_timestamp, last_field1, last_field2, entry_id)
+    return (timestamp, field1, field2, entry_id)
 
 
 # Usage: http://<SERVER>/last?channel=<numeric>
@@ -164,7 +165,7 @@ def last():
         if api_key:
             timestamp, field1, field2, entry_id = sql_last(api_key)
             timestamp_string = timestamp_float_to_string(timestamp, timezone)
-            return timestamp_string + '   ' + str(field1) + '   ' + str(field2)
+            return Response(timestamp_string + '   ' + str(field1) + '   ' + str(field2), mimetype='text/plain')
 
     return Response('Failed', status=403, mimetype='text/plain') 
 
