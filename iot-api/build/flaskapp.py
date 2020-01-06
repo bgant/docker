@@ -162,7 +162,7 @@ def sql_feed(channel, results, timezone):
 
     for row in records:
         key, timestamp, field1, field2 = row
-        timestamp_string = datetime.now(tz=pytz.timezone(timezone)).isoformat()
+        timestamp_string = datetime.now(tz=pytz.timezone(timezone)).replace(microsecond=0).isoformat()
         #timestamp_string = timestamp.isoformat().split('.')[0] + 'Z'  # Convert to ThingSpeak format
         output_dict = {'created_at': timestamp_string, 'entry_id': key, 'field1': field1, 'field2': field2}
         feeds.append(output_dict)
