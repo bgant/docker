@@ -7,6 +7,7 @@
 from flask import Flask, request, Response
 from authenticate import API_KEY, CHANNELS
 from datetime import datetime, timezone
+import pytz
 import sqlite3
 
 dbfile = '/opt/data/data.db'
@@ -148,7 +149,7 @@ def last_json(channel, field):
 # Request ThingSpeak styled feed.json                                                                                                              
 ##########################################################################
 
-def sql_feed(channel, results):                                                                                                                 
+def sql_feed(channel, results, timezone):                                                                                                                 
     conn = sqlite3.connect(dbfile, detect_types=sqlite3.PARSE_DECLTYPES)                                                               
     cursorObj = conn.cursor()                                                                                                          
     api_key = find_api_key(channel)
@@ -161,7 +162,8 @@ def sql_feed(channel, results):
 
     for row in records:
         key, timestamp, field1, field2 = row                                              
-        timestamp_string = timestamp.isoformat().split('.')[0] + 'Z'  # Convert to ThingSpeak format
+        timestamp_string = datetime.now(tz=pytz.timezone(timezone)).isoformat()
+        #timestamp_string = timestamp.isoformat().split('.')[0] + 'Z'  # Convert to ThingSpeak format
         output_dict = {'created_at': timestamp_string, 'entry_id': key, 'field1': field1, 'field2': field2}
         feeds.append(output_dict)
     conn.close()                                                                                                                       
@@ -171,10 +173,14 @@ def sql_feed(channel, results):
 @app.route("/channels/<channel>/feeds.json", methods=['GET'])                                                            
 def feeds_json(channel):  
     results = request.args.get('results', default=10, type=int)
-    timezone = request.args.get('timezone', type=str)
+    timezone = request.args.get('timezone', default='America/Chicago', type=str)
+    try:
+        pytz.timezone(timezone)
+    except:
+        return Response('Unknown Timezone', status=403, mimetype='text/plain') 
     api_key = find_api_key(channel)
     if api_key:
-        response = sql_feed(channel, results)
+        response = sql_feed(channel, results, timezone)
         response['channel']['last_entry_id'] = response['feeds'][0]['entry_id']  # Set channel last_entry_id
         response['channel']['updated_at'] = response['feeds'][0]['created_at']   # Set channel updated_at
         import json
@@ -185,4 +191,4 @@ def feeds_json(channel):
 
 
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=5000)
+    main()
