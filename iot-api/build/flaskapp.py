@@ -158,7 +158,7 @@ def sql_feed(channel, results, timezone):
 
     response = feed_info(channel)
     feeds = response['feeds']
-    feeds.clear()  # Clear list each time function runs
+    feeds.clear()  # Clear list each run
 
     for row in records:
         key, timestamp, field1, field2 = row
@@ -168,6 +168,8 @@ def sql_feed(channel, results, timezone):
         else:
             output_dict = {'created_at': timestamp_string, 'entry_id': key, 'field1': field1}
         feeds.append(output_dict)
+
+    feeds.reverse() # Sort oldest to newest
 
     conn.close()
     return response
@@ -194,8 +196,8 @@ def feeds_json(channel):
     api_key = find_api_key(channel)
     if api_key:
         response = sql_feed(channel, results, timezone)
-        response['channel']['last_entry_id'] = response['feeds'][0]['entry_id']  # Set channel last_entry_id
-        response['channel']['updated_at'] = response['feeds'][0]['created_at']   # Set channel updated_at
+        response['channel']['last_entry_id'] = response['feeds'][-1]['entry_id']  # Set channel last_entry_id
+        response['channel']['updated_at'] = response['feeds'][-1]['created_at']   # Set channel updated_at
         if empty_feed:
            response['feeds'].clear() 
         import json
