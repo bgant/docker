@@ -93,9 +93,7 @@ def sql_insert(entities):
     conn.commit()
     conn.close()
 
-# Usage: http://<SERVER>/update?api_key=TOM&field1=77.8&field2=45.6
-#@app.route("/update/api_key=<api_key>&field1=<field1>&field2=<field2>", methods=['GET'])
-#def write_data_point(api_key, field1, field2):
+# Usage: http://<SERVER>/update?api_key=abcd&field1=77.8&field2=45.6
 @app.route("/update", methods=['GET'])
 def update():
     api_key = request.args.get('api_key', type=str)
@@ -152,6 +150,7 @@ def sql_last(api_key):
     conn.close()
     return (last_timestamp, last_field1, last_field2, entry_id)
 
+
 # Usage: http://<SERVER>/last?channel=<numeric>
 @app.route("/last", methods=['GET'])
 def last():
@@ -169,27 +168,28 @@ def last():
 
     return Response('Failed', status=403, mimetype='text/plain') 
 
+
 # ThingSpeak Text Format: https://api.thingspeak.com/channels/946198/fields/1/last.txt
 @app.route("/channels/<channel>/fields/<field>/last.txt", methods=['GET'])
 def last_txt(channel, field):
-    api_key = find_api_key(channel)
-    if api_key:
-        last_timestamp, last_field1, last_field2, entry_id = sql_last(api_key)
-        if field == '1':
-            return Response(str(last_field1), mimetype='text/plain')
-        elif field == '2':
-            return Response(str(last_field2), mimetype='text/plain')
-        else:
-            return Response('Failed', status=403, mimetype='text/plain')
-    else:
-        return Response('Failed', status=403, mimetype='text/plain')
+    if valid_channel(channel) and (field == '1' or field == '2'):
+        api_key = find_api_key(channel)
+        if api_key:
+            last_timestamp, last_field1, last_field2, entry_id = sql_last(api_key)
+            if field == '1':
+                return Response(str(last_field1), mimetype='text/plain')
+            elif field == '2':
+                return Response(str(last_field2), mimetype='text/plain')
+
+    return Response('Failed', status=403, mimetype='text/plain')
+
 
 # ThingSpeak JSON Format: https://api.thingspeak.com/channels/946198/fields/1/last.json
 #       Example Response: {"created_at":"2020-01-02T20:47:35Z","entry_id":3306,"field1":"70.6"}
 @app.route("/channels/<channel>/fields/<field>/last.json", methods=['GET'])
 def last_json(channel, field):
     timezone = request.args.get('timezone', default='US/Central', type=str)
-    if valid_channel(channel):
+    if valid_channel(channel) and (field == '1' or field == '2'):
         if not valid_timezone(timezone):
             return Response('Unknown Timezone', status=403, mimetype='text/plain')
 
