@@ -173,7 +173,7 @@ def sql_feed(channel, results, timezone):
 @app.route("/channels/<channel>/feeds.json", methods=['GET'])                                                            
 def feeds_json(channel):  
     results = request.args.get('results', default=10, type=int)
-    timezone = request.args.get('timezone', default='America/Chicago', type=str)
+    timezone = request.args.get('timezone', default='US/Central', type=str)
     try:
         pytz.timezone(timezone)
     except:
