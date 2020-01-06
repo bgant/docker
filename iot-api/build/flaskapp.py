@@ -64,8 +64,8 @@ def update():
         return Response('Failed', status=403, mimetype='text/plain')
 
 
-##########################################################################                                                             
-# Associate CHANNEL and API_KEY                                                                                                              
+##########################################################################
+# Associate CHANNEL and API_KEY
 ##########################################################################
 
 def find_api_key(channel):
@@ -77,9 +77,9 @@ def find_api_key(channel):
 
 def feed_info(channel):
     response = None
-    for x in CHANNELS:                                                                                                                 
-        if x['response']['channel']['id'] == channel:                                                                                  
-            response = x['response']                                                                                                   
+    for x in CHANNELS:
+        if x['response']['channel']['id'] == channel:
+            response = x['response']
     return response
 
 
@@ -89,7 +89,7 @@ def feed_info(channel):
 
 def sql_last(api_key):
     conn = sqlite3.connect(dbfile, detect_types=sqlite3.PARSE_DECLTYPES)
-    cursorObj = conn.cursor()                                                                                    
+    cursorObj = conn.cursor()
     cursorObj.execute("SELECT timestamp, field1, field2, MAX(rowid) FROM data WHERE api_key=?", (api_key,)) # api_key is a tuple of one
     last_timestamp, last_field1, last_field2, entry_id = cursorObj.fetchone()
     conn.close()
@@ -145,13 +145,13 @@ def last_json(channel, field):
         return Response('Failed', status=403, mimetype='text/plain')
 
 
-##########################################################################                                                             
-# Request ThingSpeak styled feed.json                                                                                                              
+########################################################################## 
+# Request ThingSpeak styled feed.json
 ##########################################################################
 
-def sql_feed(channel, results, timezone):                                                                                                                 
-    conn = sqlite3.connect(dbfile, detect_types=sqlite3.PARSE_DECLTYPES)                                                               
-    cursorObj = conn.cursor()                                                                                                          
+def sql_feed(channel, results, timezone):
+    conn = sqlite3.connect(dbfile, detect_types=sqlite3.PARSE_DECLTYPES)
+    cursorObj = conn.cursor()
     api_key = find_api_key(channel)
     cursorObj.execute("SELECT key, timestamp, field1, field2 FROM data WHERE api_key=? ORDER BY key DESC LIMIT ?;", (api_key,results)) # api_key is a tuple of one
     records = cursorObj.fetchall()
@@ -161,28 +161,41 @@ def sql_feed(channel, results, timezone):
     feeds.clear()  # Clear list each time function runs
 
     for row in records:
-        key, timestamp, field1, field2 = row                                              
+        key, timestamp, field1, field2 = row
         timestamp_string = datetime.now(tz=pytz.timezone(timezone)).isoformat()
         #timestamp_string = timestamp.isoformat().split('.')[0] + 'Z'  # Convert to ThingSpeak format
         output_dict = {'created_at': timestamp_string, 'entry_id': key, 'field1': field1, 'field2': field2}
         feeds.append(output_dict)
-    conn.close()                                                                                                                       
+
+    conn.close()
     return response
 
 # ThingSpeak JSON Format: https://api.thingspeak.com/channels/946198/feeds.json?results=50&api_key=&timezone=America/Chicago
-@app.route("/channels/<channel>/feeds.json", methods=['GET'])                                                            
-def feeds_json(channel):  
+@app.route("/channels/<channel>/feeds.json", methods=['GET'])
+def feeds_json(channel): 
     results = request.args.get('results', default=10, type=int)
     timezone = request.args.get('timezone', default='US/Central', type=str)
+
+    # Handle timezone requests
     try:
         pytz.timezone(timezone)
     except:
-        return Response('Unknown Timezone', status=403, mimetype='text/plain') 
+        return Response('Unknown Timezone', status=403, mimetype='text/plain')
+
+    # Handle results=0 requests from Android IoT ThingSpeak Monitor Widget
+    if results < 1:
+        empty_feed = True
+        results = 1
+    else:
+        empty_feed = False
+
     api_key = find_api_key(channel)
     if api_key:
         response = sql_feed(channel, results, timezone)
         response['channel']['last_entry_id'] = response['feeds'][0]['entry_id']  # Set channel last_entry_id
         response['channel']['updated_at'] = response['feeds'][0]['created_at']   # Set channel updated_at
+        if empty_feed:
+           response['feeds'].clear() 
         import json
         response_json = json.dumps(response)
         return Response(response_json, mimetype='application/json')
