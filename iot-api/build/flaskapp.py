@@ -102,13 +102,15 @@ def update():
     field1 = request.args.get('field1', type=float)
     field2 = request.args.get('field2', default=None, type=float)
 
-    if str(api_key) in API_KEY:
+    if valid_api_key(api_key) and str(api_key) in API_KEY:
         timestamp = datetime.timestamp(datetime.now())  # Floating Point Number
-        entities = (timestamp, api_key, field1, field2)
-        sql_insert(entities)
-        return str(field1)
-    else:
-        return Response('Failed', status=403, mimetype='text/plain')
+        
+        if field1 and valid_field(field1):  # field2 can be empty or float (nothing else allowed)
+            entities = (timestamp, api_key, field1, field2)
+            sql_insert(entities)
+            return Response(str(field1) + '  ' + str(field2), mimetype='text/plain')
+
+    return Response('Failed', status=403, mimetype='text/plain')
 
 
 ##########################################################################
