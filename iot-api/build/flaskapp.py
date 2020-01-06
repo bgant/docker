@@ -27,7 +27,7 @@ cursorObj = conn.cursor()
 cursorObj.execute('''
         CREATE TABLE IF NOT EXISTS data (
         key integer PRIMARY KEY,
-        [timestamp] timestamp,
+        timestamp real,
         api_key text,
         field1 real,
         field2 real)
@@ -70,10 +70,14 @@ def valid_field(field):
     except:
         return False
 
-# timezone is Alphabet plus '/'
+# timezone is Alphabet plus '/' and works
 def valid_timezone(timezone):
     if timezone.replace('/', '').isalpha():
-        return True
+        try:
+            pytz.timezone(timezone)
+            return True
+        except:
+            return False
     else:
         return False
 
@@ -99,7 +103,7 @@ def update():
     field2 = request.args.get('field2', default=None, type=float)
 
     if str(api_key) in API_KEY:
-        timestamp = datetime.now(timezone.utc)
+        timestamp = datetime.timestamp(datetime.now())  # Floating Point Number
         entities = (timestamp, api_key, field1, field2)
         sql_insert(entities)
         return str(field1)
@@ -108,7 +112,7 @@ def update():
 
 
 ##########################################################################
-# Associate CHANNEL and API_KEY
+# Associate CHANNEL & API_KEY
 ##########################################################################
 
 def find_api_key(channel):
@@ -127,6 +131,14 @@ def feed_info(channel):
 
 
 ##########################################################################
+# Database Timestamp Float to String
+##########################################################################
+
+def timestamp_float_to_string(timestamp, timezone):
+    return datetime.fromtimestamp(timestamp, tz=pytz.timezone(timezone)).replace(microsecond=0).isoformat()
+
+
+##########################################################################
 # Request Last Data Entry
 ##########################################################################
 
@@ -142,12 +154,18 @@ def sql_last(api_key):
 @app.route("/last", methods=['GET'])
 def last():
     channel = request.args.get('channel', type=str)
-    api_key = find_api_key(channel)
-    if api_key:
-        last_timestamp, last_field1, last_field2, entry_id = sql_last(api_key)
-        return str(last_timestamp.isoformat()) + '   ' + str(last_field1) + '   ' + str(last_field2)
-    else:
-        return Response('Failed', status=403, mimetype='text/plain') 
+    timezone = request.args.get('timezone', default='US/Central', type=str)
+    if valid_channel(channel):
+        if not valid_timezone(timezone):
+            return Response('Unknown Timezone', status=403, mimetype='text/plain')
+
+        api_key = find_api_key(channel)
+        if api_key:
+            timestamp, field1, field2, entry_id = sql_last(api_key)
+            timestamp_string = timestamp_float_to_string(timestamp, timezone)
+            return timestamp_string + '   ' + str(field1) + '   ' + str(field2)
+
+    return Response('Failed', status=403, mimetype='text/plain') 
 
 # ThingSpeak Text Format: https://api.thingspeak.com/channels/946198/fields/1/last.txt
 @app.route("/channels/<channel>/fields/<field>/last.txt", methods=['GET'])
@@ -168,24 +186,25 @@ def last_txt(channel, field):
 #       Example Response: {"created_at":"2020-01-02T20:47:35Z","entry_id":3306,"field1":"70.6"}
 @app.route("/channels/<channel>/fields/<field>/last.json", methods=['GET'])
 def last_json(channel, field):
-    api_key = find_api_key(channel)
-    if api_key:
-        last_timestamp, last_field1, last_field2, entry_id = sql_last(api_key)
-        last_timestamp_string = last_timestamp.isoformat().split('.')[0] + 'Z'  # Convert to ThingSpeak format
-        import json
-        if field == '1':
-            output_dict = {'created_at': last_timestamp_string, 'entry_id': entry_id, 'field1': last_field1}
-            output_json = json.dumps(output_dict)
-            #return str(output_json)
-            return Response(output_json, mimetype='application/json')
-        elif field == '2':
-            output_dict = {'created_at': last_timestamp_string, 'entry_id': entry_id, 'field2': last_field2}
-            output_json = json.dumps(output_dict) 
-            return Response(output_json, mimetype='application/json')
-        else:
-            return Response('Failed', status=403, mimetype='text/plain')
-    else:
-        return Response('Failed', status=403, mimetype='text/plain')
+    timezone = request.args.get('timezone', default='US/Central', type=str)
+    if valid_channel(channel):
+        if not valid_timezone(timezone):
+            return Response('Unknown Timezone', status=403, mimetype='text/plain')
+
+        api_key = find_api_key(channel)
+        if api_key:
+            timestamp, field1, field2, entry_id = sql_last(api_key)
+            timestamp_string = timestamp_float_to_string(timestamp, timezone)
+            if field == '1':
+                output_dict = {'created_at': timestamp_string, 'entry_id': entry_id, 'field1': field1}
+                output_json = json.dumps(output_dict)
+                return Response(output_json, mimetype='application/json')
+            elif field == '2':
+                output_dict = {'created_at': timestamp_string, 'entry_id': entry_id, 'field2': field2}
+                output_json = json.dumps(output_dict) 
+                return Response(output_json, mimetype='application/json')
+
+    return Response('Failed', status=403, mimetype='text/plain')
 
 
 ########################################################################## 
@@ -205,7 +224,7 @@ def sql_feed(channel, results, timezone):
 
     for row in records:
         key, timestamp, field1, field2 = row
-        timestamp_string = datetime.now(tz=pytz.timezone(timezone)).replace(microsecond=0).isoformat()
+        timestamp_string = timestamp_float_to_string(timestamp, timezone)
         if field2:
             output_dict = {'created_at': timestamp_string, 'entry_id': key, 'field1': field1, 'field2': field2}
         else:
@@ -223,11 +242,8 @@ def feeds_json(channel):
     results = request.args.get('results', default=10, type=int)  # non-digits ignored
     timezone = request.args.get('timezone', default='US/Central', type=str)
 
-    if valid_channel(channel) and valid_results(results) and valid_timezone(timezone):
-        # Handle timezone requests
-        try:
-            pytz.timezone(timezone)
-        except:
+    if valid_channel(channel) and valid_results(results):
+        if not valid_timezone(timezone):
             return Response('Unknown Timezone', status=403, mimetype='text/plain')
 
         # Handle results=0 requests from Android IoT ThingSpeak Monitor Widget
