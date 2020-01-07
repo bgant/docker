@@ -22,3 +22,8 @@ services:
 volumes:
   iot-data:
     driver: local
+
+networks:
+  default:
+    external:
+      name: swarm_default
