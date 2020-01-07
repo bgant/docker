@@ -49,7 +49,7 @@ COPY localhost.key /etc/ssl/private/localhost.key
 COPY flask-site-nginx.conf /etc/nginx/conf.d/
 COPY uwsgi.ini /etc/uwsgi/
 COPY supervisord.conf /etc/
-COPY flaskapp.py .
+COPY flaskapp .
 COPY authenticate.py .
 
 #CMD ["python", "/root/flaskapp.py"]
