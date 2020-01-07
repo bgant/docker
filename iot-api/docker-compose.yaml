@@ -7,7 +7,6 @@ services:
     container_name: iot-api
     ports:
       - "8001:80/tcp"
-      - "44301:443/tcp"
     volumes:
       - iot-data:/opt/data
     environment:
