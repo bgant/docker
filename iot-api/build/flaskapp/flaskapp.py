@@ -281,9 +281,9 @@ def feeds_json(channel):
 def index():
     return Response('It Works!', mimetype='text/plain')
 
-# Usage: http://<SERVER>/                                                                                                                                                                      
-@app.route("/channels/<channel>/charts/1", methods=['GET'])                                                                                                                                                               
-def chart():                                                                                                                                                                                   
+# Usage: http://<SERVER>/
+@app.route("/channels/<channel>/charts/1", methods=['GET'])
+def chart(channel):
     return render_template('index.html')
 
 
