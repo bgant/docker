@@ -1,6 +1,7 @@
 # Ignore docker user files
 .ash_history
 .bash_history
+.ssh
 
 # Ignore files holding secret information
 authenticate.py
