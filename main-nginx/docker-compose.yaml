@@ -1,0 +1,28 @@
+version: '3.3'
+
+services:
+  app:
+    build: .
+    image: main-nginx
+    container_name: main-nginx
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      #- ./main-nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - letsencrypt:/etc/letsencrypt
+    deploy:
+      placement:
+        constraints: [node.role == manager]
+      restart_policy:
+        condition: on-failure
+        max_attempts: 5
+
+volumes:
+  letsencrypt:
+    driver: local
+
+networks:
+  default:
+    external:
+      name: swarm_default
