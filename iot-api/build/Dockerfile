@@ -4,7 +4,7 @@
 
 FROM alpine:latest
 
-WORKDIR /opt                                         
+WORKDIR /opt
 
 # Install APK Packages
 RUN apk add --no-cache \
@@ -27,22 +27,23 @@ RUN python3 -m ensurepip && \
 RUN rm /etc/nginx/conf.d/default.conf && \
     mkdir /run/nginx && \
     rm -r /root/.cache
-# Avoid creating logs in the container                                   
-# View logs with: docker service logs --follow iot-api_app               
-RUN ln -sf /dev/stdout /var/log/nginx/access.log \                       
+# Avoid creating logs in the container
+# View logs with: docker service logs --follow iot-api_app
+RUN ln -sf /dev/stdout /var/log/nginx/access.log \
   && ln -sf /dev/stderr /var/log/nginx/error.log 
 
-# Create database directory                                              
+# Create database directory
 RUN mkdir /opt/data && chown nginx:nginx /opt/data && chmod 770 /opt/data
 
-# Install self-signed openssl files (create with generate-openssl.sh)    
-# --OR--                                                                 
-# Install Let's Encrypt Certificates                                     
-#    sudo add-apt-repository ppa:certbot/certbot                         
-#    sudo apt install python-certbot-nginx                               
-#    sudo certbot --nginx -d mydomain.com -d www.mydomain.com            
-COPY localhost.crt /etc/ssl/certs/localhost.crt                          
-COPY localhost.key /etc/ssl/private/localhost.key  
+# Install self-signed openssl files (create with generate-openssl.sh)
+COPY localhost.crt /etc/ssl/certs/localhost.crt 
+COPY localhost.key /etc/ssl/private/localhost.key 
+# --OR-- 
+# Install Let's Encrypt Certificates with EFF Certbot (https://certbot.eff.org)
+#    apk update && apk add certbot certbot-nginx
+#    sudo certbot certonly --nginx -d mydomain.com -d www.mydomain.com 
+#COPY mydomain.com.crt /etc/ssl/certs/localhost.crt
+#COPY mydomain.com.key /etc/ssl/private/localhost.key 
 
 # Copy over configuration files
 COPY flask-site-nginx.conf /etc/nginx/conf.d/
