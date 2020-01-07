@@ -272,5 +272,15 @@ def feeds_json(channel):
     return Response('Failed', status=403, mimetype='text/plain')
 
 
+########################################################################## 
+# Test Message
+##########################################################################
+
+# Usage: http://<SERVER>/
+@app.route("/", methods=['GET'])
+def index():
+    return Response('It Works!', mimetype='text/plain')
+
+
 if __name__ == "__main__":
     main()
