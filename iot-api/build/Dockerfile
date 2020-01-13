@@ -43,7 +43,9 @@ RUN mkdir /opt/data && chown nginx:nginx /opt/data && chmod 770 /opt/data
 COPY flask-site-nginx.conf /etc/nginx/conf.d/
 COPY uwsgi.ini /etc/uwsgi/
 COPY supervisord.conf /etc/
-COPY flaskapp .
+COPY flaskapp.py .
+COPY static/ ./static/
+COPY templates/ ./templates/
 COPY authenticate.py .
 
 #CMD ["python", "/root/flaskapp.py"]
