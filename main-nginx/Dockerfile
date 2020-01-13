@@ -21,6 +21,8 @@ RUN ln -sf /dev/stdout /var/log/nginx/access.log \
     && ln -sf /dev/stderr /var/log/nginx/error.log 
 
 # Copy over configuration files
+COPY certbot_renew /etc/periodic/daily/
+RUN chmod a+x /etc/periodic/daily/certbot_renew
 COPY main-nginx.conf /etc/nginx/conf.d/main-nginx.conf
 
 # Start nginx

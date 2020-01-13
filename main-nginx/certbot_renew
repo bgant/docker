@@ -1,0 +1,6 @@
+#!/bin/bash
+# Source: https://certbot.eff.org/lets-encrypt/
+# cp certbot_renew /etc/periodic/daily/
+
+# Sleep a random amount of time then check for certificate renewal
+sleep $(shuf -i1000-3600 -n1) && certbot renew
