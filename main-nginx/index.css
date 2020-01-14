@@ -1,0 +1,31 @@
+body {
+  font-size: 17px;
+  line-height: 1.6em;
+
+  font-family: 'Century';
+  color: #5D6063;
+
+  background-color: #FFFFFF;
+
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-font-smoothing: antialiased;
+
+  min-width: 320px;
+
+  position: relative;
+  z-index: 1;
+}
+
+.content {
+  border-bottom: 1px solid #EAEDF0;
+}
+
+.content__wrapper {
+  max-width: 580px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.content__wrapper--first {
+padding-top: 42px;
+}
