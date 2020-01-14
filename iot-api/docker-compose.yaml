@@ -22,6 +22,7 @@ volumes:
   iot-data:
     driver: local
 
+# docker network create -d overlay swarm_default
 networks:
   default:
     external:

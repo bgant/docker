@@ -22,6 +22,7 @@ volumes:
   letsencrypt:
     driver: local
 
+# docker network create -d overlay swarm_default
 networks:
   default:
     external:
