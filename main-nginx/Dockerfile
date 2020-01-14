@@ -20,14 +20,18 @@ RUN mkdir /run/nginx && \
 RUN ln -sf /dev/stdout /var/log/nginx/access.log \
     && ln -sf /dev/stderr /var/log/nginx/error.log 
 
-# Copy over configuration files
+# Configure nginx
+COPY main-nginx.conf /etc/nginx/conf.d/main-nginx.conf                       
+RUN mv /var/lib/nginx/html/index.html /var/lib/nginx/html/index.html.original
+
+# daily certbot renew
 COPY certbot_renew /etc/periodic/daily/
 RUN chmod a+x /etc/periodic/daily/certbot_renew
-COPY main-nginx.conf /etc/nginx/conf.d/main-nginx.conf
+
+# Webpage content
 COPY EdgeX_architecture.png /var/lib/nginx/html/
-COPY index.css /var/lib/nginx/html/
-RUN mv /var/lib/nginx/html/index.html /var/lib/nginx/html/index.html.original
-COPY index.html /var/lib/nginx/html/
+#COPY index.css /var/lib/nginx/html/
+#COPY index.html /var/lib/nginx/html/
 
 # Start nginx
 CMD ["nginx", "-g", "daemon off;"] 
