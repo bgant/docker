@@ -7,7 +7,7 @@ FROM alpine:latest
 WORKDIR /opt
 
 # Install APK Packages
-RUN apk add --no-cache \
+RUN apk update && apk add --no-cache \
     python3 \
     bash \
     nginx \

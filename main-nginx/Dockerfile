@@ -6,7 +6,7 @@ FROM alpine:latest
 WORKDIR /root
 
 # Install APK Packages
-RUN apk add --no-cache \
+RUN apk update && apk add --no-cache \
     bash \
     nginx \
     certbot \
@@ -24,6 +24,10 @@ RUN ln -sf /dev/stdout /var/log/nginx/access.log \
 COPY certbot_renew /etc/periodic/daily/
 RUN chmod a+x /etc/periodic/daily/certbot_renew
 COPY main-nginx.conf /etc/nginx/conf.d/main-nginx.conf
+COPY EdgeX_architecture.png /var/lib/nginx/html/
+COPY index.css /var/lib/nginx/html/
+RUN mv /var/lib/nginx/html/index.html /var/lib/nginx/html/index.html.original
+COPY index.html /var/lib/nginx/html/
 
 # Start nginx
 CMD ["nginx", "-g", "daemon off;"] 
