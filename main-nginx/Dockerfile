@@ -25,8 +25,8 @@ COPY main-nginx.conf /etc/nginx/conf.d/main-nginx.conf
 RUN mv /var/lib/nginx/html/index.html /var/lib/nginx/html/index.html.original
 
 # daily certbot renew
-COPY certbot_renew /etc/periodic/daily/
-RUN chmod a+x /etc/periodic/daily/certbot_renew
+#COPY certbot_renew /etc/periodic/daily/
+#RUN chmod a+x /etc/periodic/daily/certbot_renew
 
 # Webpage content
 COPY EdgeX_architecture.png /var/lib/nginx/html/
