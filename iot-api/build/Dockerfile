@@ -33,7 +33,7 @@ RUN ln -sf /dev/stdout /var/log/nginx/access.log \
   && ln -sf /dev/stderr /var/log/nginx/error.log 
 
 # Create database directory
-RUN mkdir /opt/data && chown nginx:nginx /opt/data && chmod 770 /opt/data
+RUN mkdir /opt/data && chown -R nginx:nginx /opt/data && chmod -R 660 /opt/data
 
 # Install self-signed openssl files (create with generate-openssl.sh)
 #COPY localhost.crt /etc/ssl/certs/localhost.crt 
