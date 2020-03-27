@@ -1,0 +1,27 @@
+version: '3.3'
+
+services:
+  app:
+    build: .
+    image: burp
+    container_name: burp
+    ports:
+      - "4971:4971"
+    volumes:
+      - burp-data:/var/spool/burp
+    deploy:
+      placement:
+        constraints: [node.role == manager]
+      restart_policy:
+        condition: on-failure
+        max_attempts: 5
+
+volumes:
+  burp-data:
+    driver: local
+
+# docker network create -d overlay swarm_default
+networks:
+  default:
+    external:
+      name: swarm_default
