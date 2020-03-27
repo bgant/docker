@@ -2,6 +2,7 @@
 .ash_history
 .bash_history
 .ssh
+.cache
 
 # Ignore files holding secret information
 authenticate.py
