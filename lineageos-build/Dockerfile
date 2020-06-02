@@ -41,5 +41,5 @@ COPY lineageos-build-bullhead.sh .
 
 WORKDIR /root/android/lineage
 
-# /usr/local/bin/repo --color=always init -u https://github.com/LineageOS/android.git -b lineage-17.1
+# /usr/local/bin/repo init -u https://github.com/LineageOS/android.git -b lineage-17.1
 # repo sync
