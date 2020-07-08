@@ -35,11 +35,15 @@ RUN make
 RUN make install
 RUN make install-configs
 
-# Configure Burp
+# Configure Burp:
 #   Add Kubernetes ConfigMap for /etc/burp/burp-server.conf
 #   Add Kubernetes Secret for /etc/burp/clientconfdir/
-#RUN ln -sf /dev/stdout /var/log/nginx/access.log \
-#    && ln -sf /dev/stderr /var/log/nginx/error.log 
+#   Add Kubernetes Certificates for /etc/burp/CA/burpserver.key, burpserver.crt (otherwise new server key with every build)
+#    --OR--
+#   Just backup /etc/burp/ files and mount as a persistent volume
+
+# Data Volume:
+#   Create /var/spool/burp/ persistent volume to hold backups
 
 # Start Burp in foreground/stdout
 CMD ["/usr/sbin/burp", "-vFc", "/etc/burp/burp-server.conf"] 
