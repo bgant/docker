@@ -2,7 +2,7 @@
 # Source: https://netdevops.me/2017/flask-application-in-a-production-ready-container/
 # Source: https://github.com/hellt/nginx-uwsgi-flask-alpine-docker/tree/master/python3
 
-FROM alpine:latest
+FROM alpine:3.12.0
 
 WORKDIR /opt
 
@@ -33,7 +33,7 @@ RUN ln -sf /dev/stdout /var/log/nginx/access.log \
   && ln -sf /dev/stderr /var/log/nginx/error.log 
 
 # Create database directory
-RUN mkdir /opt/data && chown nginx:nginx /opt/data && chmod 770 /opt/data
+RUN mkdir /opt/data && chown -R nginx:nginx /opt/data && chmod -R 777 /opt/data
 
 # Install self-signed openssl files (create with generate-openssl.sh)
 #COPY localhost.crt /etc/ssl/certs/localhost.crt 

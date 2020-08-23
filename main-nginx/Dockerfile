@@ -1,7 +1,7 @@
 # Source: https://www.humankode.com/ssl/how-to-set-up-free-ssl-certificates-from-lets-encrypt-using-docker-and-nginx
 # Source: https://docs.nginx.com/nginx/admin-guide/web-server/reverse-proxy/
 
-FROM alpine:latest
+FROM alpine:3.12.0
 
 WORKDIR /root
 
