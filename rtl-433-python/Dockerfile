@@ -7,3 +7,4 @@ COPY rtl_433_influxdb_relay.py /
 
 CMD ["python","rtl_433_influxdb_relay.py"]
 
+# Run this as a sidecar with rtl-433 container
