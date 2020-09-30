@@ -25,7 +25,7 @@
 
 # Option: PEP 3143 - Standard daemon process library
 # (use Python 3.x or pip install python-daemon)
-#  import daemon
+# import daemon
 
 from __future__ import print_function
 from __future__ import with_statement
@@ -36,13 +36,14 @@ from datetime import datetime
 import json
 import sys
 
+from os import environ
 UDP_IP = "127.0.0.1"
 UDP_PORT = 1433
-INFLUXDB_HOST = "influxdb.localdomain"
-INFLUXDB_PORT = 8086
-INFLUXDB_USERNAME = ""
-INFLUXDB_PASSWORD = ""
-INFLUXDB_DATABASE = "rtl433"
+INFLUXDB_HOST = environ['INFLUXDB_HOST']
+INFLUXDB_PORT = environ['INFLUXDB_PORT']
+INFLUXDB_USERNAME = environ['INFLUXDB_USERNAME']
+INFLUXDB_PASSWORD = environ['INFLUXDB_PASSWORD']
+INFLUXDB_DATABASE = environ['INFLUXDB_DATABASE']
 
 TAGS = [
     "channel",
