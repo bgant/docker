@@ -1,5 +1,4 @@
-
-FROM ubuntu:focal
+FROM ubuntu:groovy-20201022.1
 
 ARG DEBIAN_FRONTEND=noninteractive
 ENV TZ=America/Chicago

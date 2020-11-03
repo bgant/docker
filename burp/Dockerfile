@@ -1,11 +1,12 @@
 # Source: https://www.humankode.com/ssl/how-to-set-up-free-ssl-certificates-from-lets-encrypt-using-docker-and-nginx
 # Source: https://docs.nginx.com/nginx/admin-guide/web-server/reverse-proxy/
 
-FROM alpine:3.12.0
+FROM alpine:3.12.1
 
 WORKDIR /root
 
 # Install APK Packages
+#   Search for specific missing files at https://pkgs.alpinelinux.org/contents
 RUN apk update && apk add --no-cache \
     bash \
     git \
@@ -20,7 +21,9 @@ RUN apk update && apk add --no-cache \
     librsync-dev \
     openssl \
     openssl-dev \
-    zlib-dev
+    zlib-dev \
+    linux-headers \
+    bsd-compat-headers
 
 # Clone uthash repo
 RUN git clone https://github.com/troydhanson/uthash
