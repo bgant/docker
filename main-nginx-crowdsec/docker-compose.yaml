@@ -1,0 +1,7 @@
+version: '3.3'
+
+services:
+  app:
+    build: .
+    image: main-nginx-crowdsec
+    container_name: main-nginx-crowdsec
