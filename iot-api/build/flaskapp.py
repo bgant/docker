@@ -262,10 +262,11 @@ def feeds_json(channel):
         api_key = find_api_key(channel)
         if api_key:
             response = sql_feed(channel, results, timezone)
-            response['channel']['last_entry_id'] = response['feeds'][-1]['entry_id']  # Set channel last_entry_id
-            response['channel']['updated_at'] = response['feeds'][-1]['created_at']   # Set channel updated_at
-            if empty_feed:
-               response['feeds'].clear() 
+            try:
+                response['channel']['last_entry_id'] = response['feeds'][-1]['entry_id']  # Set channel last_entry_id
+                response['channel']['updated_at'] = response['feeds'][-1]['created_at']   # Set channel updated_at
+            except:
+                response['feeds'].clear() 
             response_json = json.dumps(response)
             return Response(response_json, mimetype='application/json')
 
