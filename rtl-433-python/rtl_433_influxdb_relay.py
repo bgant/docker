@@ -99,7 +99,11 @@ def rtl_433_probe():
             fields = {}
             for field in FIELDS:
                 if field in data:
-                    fields[field] = data[field]
+                    if field == 'temperature_C':
+                        fields[field] = float(data[field])
+                    else:
+                        fields[field] = int(data[field])
+                    #print(field, fields[field], type(fields[field]))
 
             if len(fields) == 0:
                 continue
