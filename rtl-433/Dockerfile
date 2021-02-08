@@ -1,4 +1,4 @@
-FROM ubuntu:groovy-20201125.2
+FROM ubuntu:groovy-20210115
 
 ARG DEBIAN_FRONTEND=noninteractive
 ENV TZ=America/Chicago
