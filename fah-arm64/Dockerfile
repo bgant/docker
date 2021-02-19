@@ -1,4 +1,5 @@
-FROM debian:buster-20210111-slim
+# docker-compose build must be run on arm64 device
+FROM debian:buster-20210208-slim
 
 ARG DEBIAN_FRONTEND=noninteractive
 ENV TZ=America/Chicago
