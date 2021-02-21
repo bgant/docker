@@ -11,6 +11,7 @@ fi
 ### Check to see if certificates should be renewed
 certbot certonly \
         --config-dir "${LETSENCRYPT_DIR:-/etc/letsencrypt}" \
+                --dry-run \
 		--agree-tos \
 		--domains "${DOMAIN:?NeedDomainEnvironmentVariable}" \
 		--email "${EMAIL:?NeedEmailEnvironmentVariable}" \
