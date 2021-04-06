@@ -2,7 +2,7 @@
 # Source: https://netdevops.me/2017/flask-application-in-a-production-ready-container/
 # Source: https://github.com/hellt/nginx-uwsgi-flask-alpine-docker/tree/master/python3
 
-FROM alpine:3.13.2
+FROM alpine:3.13.4
 
 WORKDIR /opt
 
