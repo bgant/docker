@@ -1,4 +1,4 @@
-FROM ubuntu:groovy-20210325.1
+FROM ubuntu:hirsute-20210401
 
 ARG DEBIAN_FRONTEND=noninteractive
 ENV TZ=America/Chicago
