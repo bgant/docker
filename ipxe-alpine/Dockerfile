@@ -11,7 +11,11 @@
 # Source: https://ipxe.org/scripting
 #
 
+# https://hub.docker.com/_/alpine
 FROM alpine:3.13.4
+
+# https://github.com/ipxe/ipxe/tags
+ENV IPXE="v1.21.1"
 
 WORKDIR /opt
 
@@ -24,30 +28,18 @@ RUN apk update && apk add --no-cache \
     mtools \
     cdrkit \ 
     syslinux \
-    git \ 
     bash \
-    openssh-client
+    git
 
 # Download latest iPXE software and compile
-RUN git clone git://git.ipxe.org/ipxe.git
+RUN git config --global advice.detachedHead false
+RUN git clone --depth 1 --branch $IPXE git://git.ipxe.org/ipxe.git
 
 # Add more menu items and features
 # Source: https://ericdraken.com/cluster-computer-gotchas/#ipxe-menu
 RUN cd ipxe/src && echo -e "\
 \n#define DOWNLOAD_PROTO_HTTPS\
 \n#define IMAGE_TRUST_CMD\
-\n\
-\n#define PING_CMD\
-\n#define IPSTAT_CMD\
-\n#define NSLOOKUP_CMD\
-\n#define TIME_CMD\
-\n#define REBOOT_CMD\
-\n#define POWEROFF_CMD\
-\n#define CONSOLE_CMD\
-\n#define VLAN_CMD\
-\n#define LOTEST_CMD\
-\n#define PCI_CMD\
-\n#define PROFSTAT_CMD\
 \n\
 \n#undef  NET_PROTO_IPV6\
 " >> config/local/general.h
