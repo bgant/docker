@@ -1,5 +1,5 @@
 # Apache2 Official httpd Container
-FROM httpd:2.4.46
+FROM httpd:2.4.47
 
 #ARG DEBIAN_FRONTEND=noninteractive
 #ENV TZ=America/Chicago
@@ -21,6 +21,7 @@ RUN sed -i -e 's/#\(LoadModule cgi\)/\1/' /usr/local/apache2/conf/httpd.conf
 ##################################################
 # Install AWStats
 ##################################################
+# Find latest version at https://www.awstats.org/#DOWNLOAD
 ENV AWSTATS_VERSION=7.8
 WORKDIR /usr/local/
 RUN wget https://prdownloads.sourceforge.net/awstats/awstats-$AWSTATS_VERSION.tar.gz
