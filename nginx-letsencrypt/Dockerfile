@@ -1,6 +1,6 @@
 # Source: https://ilhicas.com/2019/03/02/Nginx-Letsencrypt-Docker.html
 
-FROM nginx:1.20.1-alpine
+FROM nginx:1.21.0-alpine
 
 WORKDIR /root
 
