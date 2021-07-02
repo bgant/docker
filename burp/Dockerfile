@@ -2,13 +2,13 @@
 # Source: https://docs.nginx.com/nginx/admin-guide/web-server/reverse-proxy/
 
 # https://hub.docker.com/_/alpine?tab=tags
-FROM alpine:3.13.5
+FROM alpine:3.14.0
 
 # https://github.com/troydhanson/uthash/tags
 ENV UTHASH="v2.3.0"
 
 # https://github.com/grke/burp/tags
-ENV BURP="2.4.0"
+ENV BURP="2.5.2"
 
 WORKDIR /root
 
@@ -57,4 +57,4 @@ RUN make install-configs
 #   Create /var/spool/burp/ persistent volume to hold backups
 
 # Start Burp in foreground/stdout
-CMD ["/usr/sbin/burp", "-vFc", "/etc/burp/burp-server.conf"] 
+CMD ["/usr/sbin/burp", "-Fc", "/etc/burp/burp-server.conf"] 
