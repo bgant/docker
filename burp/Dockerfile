@@ -2,13 +2,13 @@
 # Source: https://docs.nginx.com/nginx/admin-guide/web-server/reverse-proxy/
 
 # https://hub.docker.com/_/alpine?tab=tags
-FROM alpine:3.14.0
+FROM alpine:3.14.2
 
 # https://github.com/troydhanson/uthash/tags
 ENV UTHASH="v2.3.0"
 
 # https://github.com/grke/burp/tags
-ENV BURP="2.5.2"
+ENV BURP="2.5.4"
 
 WORKDIR /root
 
