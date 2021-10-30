@@ -1,5 +1,5 @@
 # Source: http://picocms.org/docs/#i-want-to-use-composer
-FROM php:8.0.9-apache-buster
+FROM php:8.0.12-apache-buster
 
 #ARG DEBIAN_FRONTEND=noninteractive
 #ENV TZ=America/Chicago
