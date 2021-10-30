@@ -1,4 +1,4 @@
-FROM ubuntu:hirsute-20210602
+FROM ubuntu:impish-20211015
 
 ARG DEBIAN_FRONTEND=noninteractive
 ENV TZ=America/Chicago
