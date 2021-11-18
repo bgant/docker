@@ -12,7 +12,7 @@
 #
 
 # https://hub.docker.com/_/alpine
-FROM alpine:3.13.7
+FROM alpine:3.14.3
 
 # https://github.com/ipxe/ipxe/tags
 ENV IPXE="v1.21.1"
