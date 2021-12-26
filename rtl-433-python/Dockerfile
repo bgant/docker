@@ -1,5 +1,5 @@
 
-FROM python:3.9.7-buster
+FROM python:3.9.9-buster
 
 RUN pip install influxdb psutil
 
