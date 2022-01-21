@@ -1,6 +1,14 @@
 # Source: https://ilhicas.com/2019/03/02/Nginx-Letsencrypt-Docker.html
 
-FROM nginx:1.21.4-alpine
+# git pull
+# vi Dockerfile
+# < change FROM to latest version found at https://hub.docker.com >
+# docker compose build
+# docker tag <name>:latest registry.localdomain:5000/<name>:<year-month-day>
+# docker push registry.localdomain:5000/<name>:<year-month-day>
+# < edit Kubernetes Docker Image to registry.localdomain:5000/<name>:<year-month-day> >
+
+FROM nginx:1.21.5-alpine
 
 WORKDIR /root
 
