@@ -7,6 +7,9 @@
 # docker tag <name>:latest registry.localdomain:5000/<name>:<year-month-day>
 # docker push registry.localdomain:5000/<name>:<year-month-day>
 # < edit Kubernetes Docker Image to registry.localdomain:5000/<name>:<year-month-day> >
+# git add Dockerfile
+# git commit -m "<new image name>"
+# git push
 
 FROM nginx:1.21.5-alpine
 
