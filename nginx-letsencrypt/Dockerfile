@@ -11,7 +11,7 @@
 # git commit -m "<new image name>"
 # git push
 
-FROM nginx:1.21.6-alpine
+FROM nginx:1.23.1-alpine
 
 WORKDIR /root
 
