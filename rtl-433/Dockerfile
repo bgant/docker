@@ -1,4 +1,4 @@
-FROM ubuntu:jammy-20220130
+FROM ubuntu:jammy-20221101
 
 ARG DEBIAN_FRONTEND=noninteractive
 ENV TZ=America/Chicago
