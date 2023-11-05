@@ -2,7 +2,7 @@
 # Source: https://docs.nginx.com/nginx/admin-guide/web-server/reverse-proxy/
 
 # https://hub.docker.com/_/alpine?tab=tags
-FROM alpine:3.17.3
+FROM alpine:3.18.4
 
 # https://github.com/troydhanson/uthash/tags
 ENV UTHASH="v2.3.0"
