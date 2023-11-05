@@ -1,4 +1,4 @@
-FROM ubuntu:lunar-20230314
+FROM ubuntu:mantic-20231011
 
 ARG DEBIAN_FRONTEND=noninteractive
 ENV TZ=America/Chicago
