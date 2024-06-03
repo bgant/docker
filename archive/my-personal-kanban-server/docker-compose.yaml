@@ -1,7 +1,0 @@
-version: '3.3'
-
-services:
-  app:
-    build: .
-    image: my-personal-kanban-server
-    container_name: my-personal-kanban-server

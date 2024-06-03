@@ -1,7 +1,0 @@
-version: '3.3'
-
-services:
-  app:
-    build: .
-    image: ipxe-alpine
-    container_name: ipxe-alpine

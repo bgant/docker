@@ -1,9 +1,0 @@
-version: '3.3'
-
-services:
-  app:
-    build: .
-    image: lineageos-build
-    container_name: lineageos-build
-
-
