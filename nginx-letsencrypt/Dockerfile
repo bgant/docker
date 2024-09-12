@@ -3,7 +3,7 @@
 # git pull
 # vi Dockerfile
 # < change FROM to latest version found at https://hub.docker.com >
-# docker compose build
+# sudo docker-compose build
 # docker tag <name>:latest registry.localdomain:5000/<name>:<year-month-day>
 # docker push registry.localdomain:5000/<name>:<year-month-day>
 # < edit Kubernetes Docker Image to registry.localdomain:5000/<name>:<year-month-day> >
@@ -11,7 +11,7 @@
 # git commit -m "<new image name>"
 # git push
 
-FROM nginx:1.27-alpine
+FROM nginx:1.27.1-alpine
 
 WORKDIR /root
 
