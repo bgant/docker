@@ -1,0 +1,52 @@
+# MOSQUITTO
+###################################################################
+# First run creates zigbee2mqtt directory with correct permissions
+# Run multiple times to test
+docker run -it --rm \
+   --name mqtt \
+   -p 0.0.0.0:1883:1883 \
+   -v /var/opt/docker/eclipse-mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro \
+   -v /var/opt/docker/eclipse-mosquitto:/mosquitto/data/ \
+   eclipse-mosquitto:2.0.15
+
+
+cp /root/source/bgant/alpine-zfs-docker/eclipse-mosquitto/mosquitto.conf /var/opt/docker/eclipse-mosquitto/
+
+
+# Final command to run container detached
+docker run -d \
+   --name mqtt \
+   --restart unless-stopped \
+   -p 0.0.0.0:1883:1883 \
+   -v /var/opt/docker/eclipse-mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro \
+   -v /var/opt/docker/eclipse-mosquitto:/mosquitto/data/ \
+   eclipse-mosquitto:2.0.15
+
+docker logs -f mqtt
+
+
+MIGRATE TO NAMED DOCKER VOLUME:
+
+docker stop eclipse-mosquitto
+docker rename eclipse-mosquitto eclipse-mosquitto-old 
+
+cd /var/opt/docker
+rsync --archive --progress eclipse-mosquitto/ backup/eclipse-mosquitto-2023-11-05/
+
+docker volume create --driver local \
+    --opt type=none \
+    --opt device=/var/opt/docker/eclipse-mosquitto \
+    --opt o=bind \
+    eclipse-mosquitto
+
+docker volume ls
+
+docker run -d \
+   --name eclipse-mosquitto \
+   --restart unless-stopped \
+   -p 0.0.0.0:1883:1883 \
+   -v /var/opt/docker/eclipse-mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro \
+   -v eclipse-mosquitto:/mosquitto/data/ \
+   eclipse-mosquitto:2.0.18
+
+docker rm eclipse-mosquitto-old

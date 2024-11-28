@@ -1,0 +1,48 @@
+# Source: https://hub.docker.com/_/caddy
+
+mkdir /var/opt/docker/caddy_data
+docker volume create --driver local \
+    --opt type=none \
+    --opt device=/var/opt/docker/caddy_data \
+    --opt o=bind \
+    caddy_data
+
+mkdir /var/opt/docker/caddy_config
+docker volume create --driver local \
+    --opt type=none \
+    --opt device=/var/opt/docker/caddy_config \
+    --opt o=bind \
+    caddy_config
+
+mkdir /var/opt/docker/caddy_html
+docker volume create --driver local \
+    --opt type=none \
+    --opt device=/var/opt/docker/caddy_html \
+    --opt o=bind \
+    caddy_html
+
+cd ~/source/bgant/tools/alpine-zfs-docker/caddy
+docker build -t caddy-dynu:2.8.4-alpine .
+
+docker run -it --rm \
+--name caddy \
+--cap-add=NET_ADMIN -p 80:80 -p 443:443 -p 443:443/udp \
+--volume /var/opt/configmaps/Caddyfile:/etc/caddy/Caddyfile:ro \
+--volume caddy_html:/srv \
+--volume caddy_data:/data \
+--volume caddy_config:/config \
+caddy-dynu:2.8.4-alpine
+
+docker run -d \
+--name caddy \
+--restart unless-stopped \
+--cap-add=NET_ADMIN -p 80:80 -p 443:443 -p 443:443/udp \
+--volume /var/opt/configmaps/Caddyfile:/etc/caddy/Caddyfile:ro \
+--volume caddy_html:/srv \
+--volume caddy_data:/data \
+--volume caddy_config:/config \
+caddy-dynu:2.8.4-alpine
+
+# To live load Caddyfile changes (ignore formatting error)
+docker exec caddy caddy reload --adapter caddyfile --config /etc/caddy/Caddyfile
+

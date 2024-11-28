@@ -1,0 +1,50 @@
+# Source: https://hub.docker.com/r/pihole/pihole
+# Source: https://github.com/pi-hole/docker-pi-hole/blob/master/examples/docker_run.sh
+
+docker run -it --rm \
+    --name pihole \
+    -p 0.0.0.0:53:53/tcp -p 0.0.0.0:53:53/udp \
+    -p 0.0.0.0:8084:80 \
+    --env-file /var/opt/configmaps/env-file-pihole \
+    pihole/pihole:2023.03.1
+docker logs -f pihole
+    [i] Assigning random password: <random>    <-- Copy random admin password
+docker exec -it pihole pihole -a -p            <-- OR set admin password
+http://docker-asus.localdomain:8084/admin/
+
+
+docker stop pihole
+docker rm pihole
+docker run -d \
+    --name pihole \
+    --restart unless-stopped \
+    -p 0.0.0.0:53:53/tcp -p 0.0.0.0:53:53/udp \
+    -p 0.0.0.0:8084:80 \
+    --env-file /var/opt/configmaps/env-file-pihole \
+    pihole/pihole:2024.05.0
+
+Pihole Web Interface --> settings --> Teleporter --> File Input: Browse --> Restore
+
+docker logs -f pihole
+    [i] Assigning random password: <random>    <-- Copy random admin password
+http://docker-asus.localdomain:8084/admin/
+
+docker logs pihole 2>&1 | grep 'random password'
+
+
+It doesn't look like volumes are needed. Everything is set using the env-file-pihole config.
+
+If docker logs pihole shows "DNS resolution is currently unavailable" at the end:
+vi /etc/resolv.conf       <-- On docker-asus
+    nameserver 127.0.0.1  <-- Set to 192.168.7.110 by OPNSense DHCP
+docker restart pihole 
+
+For permanent solution:
+vi /etc/network/interfaces
+auto eth0 
+#iface eth0 inet dhcp
+iface eth0 inet static
+    address 192.168.7.110
+    gateway 192.168.7.1
+    hostname docker-asus 
+

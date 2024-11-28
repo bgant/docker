@@ -1,0 +1,45 @@
+
+
+/var/opt/configmaps/env-file-rtl433-influxdb   <-- no quotes around any values / spaces in values is fine
+INFLUXDB_HOST=
+INFLUXDB_PORT=8086
+INFLUXDB_DATABASE=
+INFLUXDB_USERNAME=
+INFLUXDB_PASSWORD=
+
+
+docker run -it --rm \
+    --name rtl-433-influxdb \
+    --env-file /var/opt/configmaps/env-file-rtl-433-influxdb \
+    --device=/dev/bus/usb:/dev/bus/usb \
+    172.17.0.1:5000/rtl-433-influxdb:2024-01-20
+
+### The rtl-433-python script set some fields to Integer.
+### The rtl-433-influxdb script expects everything to be Floats.
+### To preserve old data I need to convert some fields from Integer to Float.
+docker exec -it influxdb /bin/bash
+influx -username admin -password "<PASSWORD>"
+use rtl433
+show measurements
+
+# Create Backup!!!
+select * into "LaCrosse-TX29IT-backup" from "LaCrosse-TX29IT" group by item
+
+# Copy data into "tmp" measurement but change integers to floats for some fields
+show field keys from "LaCrosse-TX29IT"
+select time, battery_ok::float, humidity::float, id, temperature_C into "LaCrosse-TX29IT-tmp" from "LaCrosse-TX29IT" group by item
+show FIELD KEYS from "LaCrosse-TX29IT-tmp"
+
+# Delete main measurement and replace with tmp
+drop measurement "LaCrosse-TX29IT"
+select * into "LaCrosse-TX29IT" from "LaCrosse-TX29IT-tmp" group by item
+drop measurement "LaCrosse-TX29IT-tmp"
+
+
+docker run -d \
+    --name rtl-433-influxdb \
+    --restart unless-stopped \
+    --env-file /var/opt/configmaps/env-file-rtl-433-influxdb \
+    --device=/dev/bus/usb:/dev/bus/usb \
+    172.17.0.1:5000/rtl-433-influxdb:2024-06-03
+

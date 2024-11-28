@@ -1,0 +1,69 @@
+
+/var/opt/configmaps/env-file-dokuwiki  <-- No quotes around values / spaces in values are OK
+DOKUWIKI_EMAIL=
+DOKUWIKI_FULL_NAME=
+DOKUWIKI_PASSWORD=
+DOKUWIKI_USERNAME=
+DOKUWIKI_WIKI_NAME=
+PHP_MEMORY_LIMIT=256M
+
+
+docker run -it --rm \
+    --name dokuwiki \
+    -p 0.0.0.0:8082:8080 \
+    --env-file /var/opt/configmaps/env-file-dokuwiki \
+    --user 1001 \
+    --volume /var/opt/docker/dokuwiki:/bitnami/dokuwiki \
+    bitnami/dokuwiki:20220731.1.0-debian-11-r73
+
+cd /var/opt/docker/dokuwiki/                  
+tar xvfz /root/dokuwiki.tar.gz .              
+
+docker exec -it dokuwiki id
+uid=1001 gid=0(root) groups=0(root)
+docker exec -it dokuwiki grep nogroup /etc/group
+nogroup:x:65534:
+docker exec -it dokuwiki ls -l /bitnami  
+drwxr-xr-x 5 799 root 5 Feb 16 21:49 dokuwiki   <-- User ID will change every time container is created
+docker exec -u 0:0 dokuwiki chown -R 1001:65534 /bitnami/dokuwiki
+
+docker stop dokuwiki
+docker rm dokuwiki
+docker run -d \
+    --name dokuwiki \
+    --restart unless-stopped \
+    -p 0.0.0.0:8082:8080 \
+    --env-file /var/opt/configmaps/env-file-dokuwiki \
+    --volume /var/opt/docker/dokuwiki:/bitnami/dokuwiki \
+    bitnami/dokuwiki:20220731.1.0-debian-11-r73
+docker exec -u 0:0 dokuwiki chown -R 1001:65534 /bitnami/dokuwiki   <-- Must run every time new container created
+docker restart dokuwiki
+
+
+
+MIGRATE TO NAMED DOCKER VOLUMES:
+
+docker stop dokuwiki
+docker rename dokuwiki dokuwiki-old
+cd /var/opt/docker
+rsync --archive --progress dokuwiki/ backup/dokuwiki-2023-11-05/
+
+mkdir /var/opt/docker/dokuwiki
+docker volume create --driver local \
+    --opt type=none \
+    --opt device=/var/opt/docker/dokuwiki \
+    --opt o=bind \
+    dokuwiki
+
+docker volume ls
+
+docker run -d \
+    --name dokuwiki \
+    --restart unless-stopped \
+    -p 0.0.0.0:8082:8080 \
+    --env-file /var/opt/configmaps/env-file-dokuwiki \
+    --volume dokuwiki:/bitnami/dokuwiki \
+    bitnami/dokuwiki:20240206.1.0-debian-12-r24
+
+
+

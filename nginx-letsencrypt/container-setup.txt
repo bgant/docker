@@ -1,0 +1,89 @@
+/var/opt/configmaps/env-file-nginx-letsencrypt
+DOMAIN=
+EMAIL=
+
+/var/opt/configmaps/nginx-letsencrypt-config/
+port-80.conf
+port-443.conf
+
+/var/opt/configmaps/nginx-letsencrypt-index/
+index.html
+index.css
+
+
+docker run -it --rm \
+    --name nginx-letsencrypt \
+    -p 0.0.0.0:80:80 \
+    -p 0.0.0.0:443:443 \
+    --env-file /var/opt/configmaps/env-file-nginx-letsencrypt \
+    --volume /var/opt/docker/nginx-letsencrypt-certbot:/etc/letsencrypt \
+    --volume /var/opt/configmaps/nginx-letsencrypt-config:/etc/nginx/conf.d:ro \
+    --volume /var/opt/configmaps/nginx-letsencrypt-index:/var/lib/nginx/html:ro \
+    172.17.0.1:5000/nginx-letsencrypt:2023-04-16
+
+docker exec -it nginx-letsencrypt /bin/bash
+ls -l /etc/letsencrypt
+total 41
+drwxr-xr-x    4 nobody   nobody           4 Feb 20 11:02 accounts
+drwxr-xr-x    3 nobody   nobody           3 Feb 20 11:02 archive
+drwxr-xr-x    2 nobody   nobody          60 Feb 20 11:02 csr
+drwx------    2 nobody   nobody          60 Feb 20 11:02 keys
+-rw-r--r--    1 nobody   nobody           0 Dec  4  2020 le_http_01_cert_challenge.conf
+drwxr-xr-x    3 nobody   nobody           4 Feb 20 11:02 live
+drwx------    2 nobody   nobody           2 Aug 14  2020 lost+found
+-rw-r--r--    1 nobody   nobody         798 May 11  2020 options-ssl-nginx.conf
+drwxr-xr-x    2 nobody   nobody           3 Feb 20 11:02 renewal
+drwxr-xr-x    5 nobody   nobody           5 Feb 20 11:02 renewal-hooks
+-rw-r--r--    1 nobody   nobody         424 Jan  7  2020 ssl-dhparams.pem
+
+bash-5.1# grep nobody /etc/passwd
+nobody:x:65534:65534:nobody:/:/sbin/nologin
+bash-5.1# grep nobody /etc/group
+nobody:x:65534
+exit
+
+cd /var/opt/docker/nginx-letsencrypt-certbot
+chown -R 65534:65534 *
+
+
+docker run -d \
+    --name nginx-letsencrypt \
+    --restart unless-stopped \
+    -p 0.0.0.0:80:80 \
+    -p 0.0.0.0:443:443 \
+    --env-file /var/opt/configmaps/env-file-nginx-letsencrypt \
+    --volume /var/opt/docker/nginx-letsencrypt-certbot:/etc/letsencrypt \
+    --volume /var/opt/configmaps/nginx-letsencrypt-config:/etc/nginx/conf.d:ro \
+    --volume /var/opt/configmaps/nginx-letsencrypt-index:/var/lib/nginx/html:ro \
+    172.17.0.1:5000/nginx-letsencrypt:2023-04-16
+
+
+MIGRATE TO NAMED DOCKER VOLUME:
+
+docker stop nginx-letsencrypt
+docker rename nginx-letsencrypt nginx-old
+
+cd /var/opt/docker
+rsync --archive --progress nginx-letsencrypt-certbot/ backup/nginx-letsencrypt-certbot-2023-11-05/
+
+docker volume create --driver local \
+    --opt type=none \
+    --opt device=/var/opt/docker/nginx-letsencrypt-certbot \
+    --opt o=bind \
+    nginx-letsencrypt-certbot
+
+docker volume ls
+
+docker run -d \
+    --name nginx-letsencrypt \
+    --restart unless-stopped \
+    -p 0.0.0.0:80:80 \
+    -p 0.0.0.0:443:443 \
+    --env-file /var/opt/configmaps/env-file-nginx-letsencrypt \
+    --volume nginx-letsencrypt-certbot:/etc/letsencrypt \
+    --volume /var/opt/configmaps/nginx-letsencrypt-config:/etc/nginx/conf.d:ro \
+    --volume /var/opt/configmaps/nginx-letsencrypt-index:/var/lib/nginx/html:ro \
+    172.17.0.1:5000/nginx-letsencrypt:2024-06-03
+
+docker rm nginx-old
+

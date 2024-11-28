@@ -1,0 +1,37 @@
+docker run -d \
+     --name registry \
+     --restart unless-stopped \
+     -p 0.0.0.0:5000:5000 \
+     -v /var/opt/docker/registry:/var/lib/registry \
+     -e REGISTRY_STORAGE_DELETE_ENABLED='true' \
+     registry:2.8.1
+
+
+docker exec registry bin/registry garbage-collect --dry-run /etc/docker/registry/config.yml
+
+
+MIGRATE TO NAMED DOCKER VOLUME:
+
+docker stop registry
+docker rename registry registry-old
+
+cd /var/opt/docker
+rsync --archive --progress registry/ backup/registry-2023-11-05/
+
+mkdir /var/opt/docker/munin
+docker volume create --driver local \
+    --opt type=none \
+    --opt device=/var/opt/docker/registry \
+    --opt o=bind \
+    registry
+
+docker volume ls
+
+docker run -d \
+     --name registry \
+     --restart unless-stopped \
+     -p 0.0.0.0:5000:5000 \
+     -v registry:/var/lib/registry \
+     --env REGISTRY_STORAGE_DELETE_ENABLED='true' \
+     registry:2.8.3
+

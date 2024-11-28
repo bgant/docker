@@ -1,0 +1,49 @@
+#################
+# REDIS
+#################
+
+There are multiple Redis containers available:
+  redis  <-- Just Redis without any additional modules (key/value plus pub/sub)
+  redislabs/redistimeseries  <-- Redis + Time Series Module
+  redislabs/redismod  <-- Redis + RedisBloom + RedisTimeSeries + RedisJSON + RedisAI + RedisGraph + RedisGears + Redisearch
+
+# To avoid permission problems we need to create a named volume in docker for the data
+mkdir /var/opt/docker/redis
+
+docker volume create --driver local \
+    --opt type=none \
+    --opt device=/var/opt/docker/redis \
+    --opt o=bind \
+    redis
+
+docker volume ls
+docker volume inspect redis
+
+docker run -it --rm \
+    --name redis \
+    -p 0.0.0.0:6379:6379 \
+    --volume redis:/data \
+    --volume /var/opt/configmaps/redis.conf:/etc/redis.conf:ro \
+    --volume /var/opt/configmaps/redis_aclfile.conf:/etc/redis_aclfile.conf:ro \
+    redislabs/redistimeseries:1.10.11 \
+    redis-server /etc/redis.conf
+
+
+docker run -d \
+    --name redis \
+    --restart unless-stopped \
+    -p 0.0.0.0:6379:6379 \
+    --volume redis:/data \
+    --env TZ=US/Central \
+    --volume /var/opt/configmaps/redis.conf:/etc/redis.conf:ro \
+    --volume /var/opt/configmaps/redis_aclfile.conf:/etc/redis_aclfile.conf:ro \
+    redislabs/redistimeseries:1.12.2 \
+    redis-server /etc/redis.conf
+
+
+    redis-server /data/redis.conf
+    --OR--
+    redis-server --loadmodule /usr/lib/redis/modules/redistimeseries.so --save 3600 1 300 5 60 10
+
+# Sources: 
+#    

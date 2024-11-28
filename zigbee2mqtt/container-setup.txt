@@ -1,0 +1,64 @@
+# ZIGBEE2MQTT
+###################################################################
+# First run creates zigbee2mqtt directory with correct permissions
+# Run multiple times to test
+docker run -it --rm \
+   --name zigbee2mqtt \
+   --device=/dev/serial/by-id/usb-dresden_elektronik_ingenieurtechnik_GmbH_ConBee_II_DE2599139-if00:/dev/ttyACM0 \
+   -p 0.0.0.0:8081:8080 \
+   -v /var/opt/docker/zigbee2mqtt:/app/data \
+   -v /run/udev:/run/udev:ro \
+   -e TZ=America/Chicago \
+   koenkk/zigbee2mqtt:1.30.3
+
+
+cp zigbee2mqtt.rules /etc/udev/rules.d/
+reboot
+
+cp /root/source/bgant/tools/alpine-zfs-docker/zigbee2mqtt/configuration.yaml /var/opt/docker/zigbee2mqtt/
+chown dockremap:nogroup /var/opt/docker/zigbee2mqtt/configuration.yml
+
+
+# Final command to run container detached
+docker run -d \
+   --name zigbee2mqtt \
+   --restart=unless-stopped \
+   --device=/dev/serial/by-id/usb-dresden_elektronik_ingenieurtechnik_GmbH_ConBee_II_DE2599139-if00:/dev/ttyACM0 \
+   -p 0.0.0.0:8081:8080 \
+   -v /var/opt/docker/zigbee2mqtt:/app/data \
+   -v /run/udev:/run/udev:ro \
+   -e TZ=America/Chicago \
+   koenkk/zigbee2mqtt:1.30.3
+
+docker logs -f zigbee2mqtt
+
+
+
+MIGRATE TO NAMED DOCKER VOLUME:
+
+docker stop zigbee2mqtt
+docker rename zigbee2mqtt zigbee2mqtt-old
+
+cd /var/opt/docker
+rsync --archive --progress zigbee2mqtt/ backup/zigbee2mqtt-2023-11-05/
+
+docker volume create --driver local \
+    --opt type=none \
+    --opt device=/var/opt/docker/zigbee2mqtt \
+    --opt o=bind \
+    zigbee2mqtt
+
+docker volume ls
+
+docker run -d \
+   --name zigbee2mqtt \
+   --restart=unless-stopped \
+   --device=/dev/zigbee:/dev/ttyACM0 \
+   -p 0.0.0.0:8081:8080 \
+   -v zigbee2mqtt:/app/data \
+   -v /run/udev:/run/udev:ro \
+   -e TZ=America/Chicago \
+   koenkk/zigbee2mqtt:1.38.0
+
+docker rm zigbee2mqtt-old
+

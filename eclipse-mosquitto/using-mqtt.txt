@@ -1,0 +1,41 @@
+TERMINAL #1:
+mosquitto_sub -h docker-asus -p 1883 -t 'zigbee2mqtt/#'
+
+TERMINAL #2:
+mosquitto_pub -h docker-asus -p 1883 -t 'zigbee2mqtt/FrontOutsideLights/get' -m '{ "state": "")'
+mosquitto_pub -h docker-asus -p 1883 -t 'zigbee2mqtt/FrontOutsideLights/set' -m '{ "state": "ON" }'
+
+
+pip install paho-mqtt
+
+### Example #1
+import paho.mqtt.client as mqtt
+client = mqtt.Client()
+client.connect('docker-asus.localdomain',1883)
+client.publish('zigbee2mqtt/FrontOutsideLights/set','{"state":"ON"}')
+client.disconnect()
+
+### Example #2
+import paho.mqtt.publish as publish
+publish.single(topic='zigbee2mqtt/FrontOutsideLights/set', payload='{ "state": "OFF" }', hostname='docker-asus')
+
+### Example #3
+import paho.mqtt.subscribe as subscribe
+msg = subscribe.simple('zigbee2mqtt/FrontOutsideLights', hostname='docker-asus', msg_count=1)
+<waits for next message>
+
+From another Terminal:
+mosquitto_pub -h docker-asus -p 1883 -t 'zigbee2mqtt/FrontOutsideLights/get' -m '{ "state": "")'
+
+>>> msg
+<paho.mqtt.client.MQTTMessage object at 0x7f73945d1e70>
+>>> msg.topic
+'zigbee2mqtt/FrontOutsideLights'
+>>> msg.payload.decode("utf-8")
+b'{"linkquality":224,"state":"ON"}
+>>> msg.payload.decode("utf-8")
+'{"linkquality":160,"state":"ON"}'
+>>> import json
+>>> json.loads(msg.payload.decode("utf-8"))
+{'linkquality': 160, 'state': 'ON'}
+

@@ -1,0 +1,26 @@
+<boot Ventoy>
+<alpine boot to normal>
+root
+setup-alpine
+us
+us
+docker-asus
+eth0  <-- left-most / closest of four to the power supply
+dhcp
+done
+n
+<new password>
+<new password>
+America/Chicago
+none
+chrony
+4     <-- gigenet
+no
+openssh
+yes
+none
+sde   <-- internal motherboard USB stick
+sys
+y
+
+

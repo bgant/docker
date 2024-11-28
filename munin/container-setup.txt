@@ -1,0 +1,57 @@
+
+/var/opt/configmaps/env-file-munin    <-- no quotes around values / spaces in values is fine
+NODES=server1:192.168.0.1 server2:192.168.0.2 server3:192.168.0.3
+TZ=America/Chicago
+
+
+docker run -it --rm \
+    --name munin \
+    -p 0.0.0.0:8083:80 \
+    --env-file /var/opt/configmaps/env-file-munin \
+    --volume /var/opt/docker/munin:/var/lib/munin \
+    aheimsbakk/munin-alpine:latest
+
+
+docker run -d \
+    --name munin \
+    --restart unless-stopped \
+    -p 0.0.0.0:8083:80 \
+    --env-file /var/opt/configmaps/env-file-munin \
+    --volume /var/opt/docker/munin:/var/lib/munin \
+    aheimsbakk/munin-alpine:latest
+
+
+MIGRATE TO NAMED DOCKER VOLUME:
+
+docker stop munin
+docker rename munin munin-old
+
+cd /var/opt/docker
+rsync --archive --progress munin/ backup/munin-2023-11-05/
+
+mkdir /var/opt/docker/munin
+docker volume create --driver local \
+    --opt type=none \
+    --opt device=/var/opt/docker/munin \
+    --opt o=bind \
+    munin
+
+docker volume ls
+
+docker run -d \
+    --name munin \
+    --restart unless-stopped \
+    -p 0.0.0.0:8083:80 \
+    --env-file /var/opt/configmaps/env-file-munin \
+    --volume munin:/var/lib/munin \
+    aheimsbakk/munin-alpine:latest
+
+docker run -d \
+    --name munin \
+    --restart unless-stopped \
+    --stop-timeout 60 \
+    -p 0.0.0.0:8083:80 \
+    --env TZ=US/Central \
+    --env-file /var/opt/configmaps/env-file-munin \
+    --volume munin:/var/lib/munin \
+    dockurr/munin:2.0.76

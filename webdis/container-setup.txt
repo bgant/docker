@@ -1,0 +1,35 @@
+# Source: https://github.com/nicolasff/webdis/blob/master/docs/webdis-docker-external-redis.md
+
+docker run --rm -it \
+    --name webdis \
+    -e REDIS_HOST="172.17.0.1" \
+    -e REDIS_PORT="6379" \
+    --volume /var/opt/configmaps/webdis.new.json:/etc/webdis.new.json:ro \
+    -p 0.0.0.0:7379:7379 nicolas/webdis:0.1.23 \
+    /usr/local/bin/webdis /etc/webdis.new.json
+
+
+docker run -d \
+    --name webdis \
+    --restart unless-stopped \
+    --env REDIS_HOST="172.17.0.1" \
+    --env REDIS_PORT="6379" \
+    --volume /var/opt/configmaps/webdis.new.json:/etc/webdis.new.json:ro \
+    -p 0.0.0.0:7379:7379 nicolas/webdis:0.1.23 \
+    /usr/local/bin/webdis /etc/webdis.new.json
+
+
+docker-asus:~# curl -s http://127.0.0.1:7379/PING
+{"PING":[true,"PONG"]}
+
+docker-asus:~# curl -s http://127.0.0.1:7379/SET/hello/world
+{"SET":[true,"OK"]}
+docker-asus:~# curl -s http://127.0.0.1:7379/GET/hello
+{"GET":"world"}
+
+docker-asus:~# curl -s http://127.0.0.1:7379/TS.ADD/test/*/27
+{"TS.ADD":1710813344414}
+
+docker-asus:~# curl -s http://127.0.0.1:7379/AUTH/test/6cbe181d98271ad834de512d77821e831bf8f2d1aa68333d7994f93082a3f51b
+{"AUTH":[true,"OK"]}
+

@@ -1,0 +1,48 @@
+# To avoid permission problems we need to create a named volume in docker for the data
+mkdir /var/opt/docker/jellyfin-config
+docker volume create --driver local \
+    --opt type=none \
+    --opt device=/var/opt/docker/jellyfin-config \
+    --opt o=bind \
+    jellyfin-config
+
+docker volume ls
+docker volume inspect jellyfin-config
+
+
+mkdir /var/opt/docker/jellyfin-cache    
+docker volume create --driver local \
+    --opt type=none \
+    --opt device=/var/opt/docker/jellyfin-cache \
+    --opt o=bind \
+    jellyfin-cache 
+ 
+docker volume ls
+docker volume inspect jellyfin-cache
+
+
+mkdir /var/opt/docker/jellyfin-media
+docker volume create --driver local \
+    --opt type=none \
+    --opt device=/var/opt/docker/jellyfin-media \
+    --opt o=bind \
+    jellyfin-media
+                
+docker volume ls                    
+docker volume inspect jellyfin-media
+
+
+# --net=host is optional but required in order to use DLNA
+docker run -d \
+ --name jellyfin \
+ -p 0.0.0.0:8096:8096 \
+ --volume jellyfin-config:/config \
+ --volume jellyfin-cache:/cache \
+ --volume jellyfin-media:/media:ro \
+ --restart=unless-stopped \
+ jellyfin/jellyfin:10.10.1
+
+
+
+Source: https://jellyfin.org/docs/general/installation/container/
+

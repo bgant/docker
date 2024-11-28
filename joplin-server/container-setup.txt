@@ -1,0 +1,125 @@
+#################
+# POSTGRES
+#################
+
+# To avoid permission problems we need to create a named volume in docker for the data
+mkdir /var/opt/docker/joplin-postgres
+docker volume create --driver local \
+    --opt type=none \
+    --opt device=/var/opt/docker/joplin-postgres \
+    --opt o=bind \
+    joplin-postgres
+
+docker volume ls
+docker volume inspect joplin-postgres
+
+docker run -it --rm \                                                                       
+    --name joplin-postgres \                                                                
+    -p 172.17.0.1:5432:5432 \                                                               
+    --env-file /var/opt/configmaps/env-file-joplin-server \                                 
+    --volume joplin-postgres:/var/lib/postgresql/data \                                     
+    postgres:15.4-alpine3.18                                                                
+                                                                                            
+                                                                                            
+docker run -d \                                                                             
+    --name joplin-postgres \                                                                
+    -p 172.17.0.1:5432:5432 \                                                               
+    --restart unless-stopped \                                                              
+    --env-file /var/opt/configmaps/env-file-joplin-server \
+    --volume joplin-postgres:/var/lib/postgresql/data \    
+    postgres:15.4-alpine3.18 
+
+
+UPGRADE TO POSTGRES VERSION 16:
+
+mkdir /var/opt/docker/joplin-postgres-16
+docker volume create --driver local \
+    --opt type=none \
+    --opt device=/var/opt/docker/joplin-postgres-16 \
+    --opt o=bind \
+    joplin-postgres-16
+
+docker exec -it joplin-postgres /usr/local/bin/pg_dumpall -U joplin > /root/postgres-15.4.dumpfile
+docker stop joplin-server
+docker stop joplin-postgres
+docker rename joplin-postgres joplin-postgres-15
+
+docker run -d \
+    --name joplin-postgres \
+    -p 172.17.0.1:5432:5432 \
+    --restart unless-stopped \
+    --env-file /var/opt/configmaps/env-file-joplin-server \
+    --volume joplin-postgres-16:/var/lib/postgresql/data \
+    postgres:16.3-alpine3.20
+
+docker exec -i joplin-postgres psql -U joplin < /root/postgres-15.4.dumpfile
+docker start joplin-server
+
+
+#################                                                                     
+# JOPLIN-SERVER                                                                           
+#################
+
+docker run -it --rm \
+    --name joplin-server \
+    -p 0.0.0.0:22300:22300 \
+    --env-file /var/opt/configmaps/env-file-joplin-server \
+    joplin/server:2.12.1-beta
+
+
+docker run -d \
+    --name joplin-server \
+    -p 0.0.0.0:22300:22300 \
+    --restart unless-stopped \
+    --env-file /var/opt/configmaps/env-file-joplin-server \
+    joplin/server:2.14.2-beta
+
+
+
+# Sources: 
+#    https://hub.docker.com/r/joplin/server
+#    https://github.com/laurent22/joplin/blob/dev/docker-compose.server.yml
+#    https://github.com/laurent22/joplin/blob/dev/.env-sample
+#    https://hub.docker.com/_/postgres
+#    https://github.com/docker-library/docs/blob/master/postgres/README.md
+
+
+####################################                                                                                 
+# Joplin and Postgres 17 on Proxmox                                                                                       
+####################################
+
+mkdir /var/opt/docker/joplin-postgres-17
+docker volume create --driver local \
+    --opt type=none \
+    --opt device=/var/opt/docker/joplin-postgres-17 \
+    --opt o=bind \
+    joplin-postgres-17
+
+docker run -d \
+    --name joplin-postgres \
+    -p 172.17.0.1:5432:5432 \
+    --restart unless-stopped \
+    --env TZ=UTC \
+    --env-file /var/opt/configmaps/env-file-joplin-server \
+    --volume joplin-postgres-17:/var/lib/postgresql/data \
+    --health-cmd='pg_isready' \
+    --health-interval=20s \
+    --health-timeout=5s \
+    --health-retries=5 \
+    postgres:17.1-alpine3.20
+
+cd ~/source/bgant/docker/joplin-server/
+docker build -t joplin-server-curl .
+
+docker run -d \
+    --name joplin-server \
+    -p 0.0.0.0:22300:22300 \
+    --restart unless-stopped \
+    --env TZ=UTC \
+    --env-file /var/opt/configmaps/env-file-joplin-server \
+    --health-cmd='curl --fail http://192.168.7.140:22300/api/ping || exit 1' \
+    --health-interval=30s \
+    --health-timeout=5s \
+    --health-retries=3 \
+    joplin-server-curl:latest
+

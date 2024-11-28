@@ -1,0 +1,154 @@
+
+apk update
+apk upgrade
+apk add zfs
+modprobe zfs
+cd /etc/modules-load.d/
+vi zfs.conf
+  zfs
+rc-status
+rc-update add zfs-import
+rc-update add zfs-mount
+apk add udev
+/etc/init.d/udev start
+rc-update add udev
+/etc/init.d/udev-trigger start
+rc-update add udev-trigger
+fdisk -l | grep "sector size"  # 512 is ashift=9
+cd /dev/disk/by-id
+ls -1 | grep ^ata | grep -v part | grep -v CDDVD | sort
+zpool create -o ashift=9 -f zfs-pool raidz2 ata-ST3250620AS_3QF0ACDF ata-ST3250620AS_3QF0BNN4 ata-ST500DM002-1BD142_Z2AG2J7C ata-ST9250410AS_5VGBWQHG
+zpool status
+zfs list
+zfs set atime=off zfs-pool
+zfs set xattr=sa zfs-pool
+zfs set compression=lz4 zfs-pool
+zfs set recordsize=64K zfs-pool   # default is 128K
+<no cache or zil>
+
+zfs create zfs-pool/var-lib-docker
+zfs set mountpoint=/var/lib/docker zfs-pool/var-lib-docker
+
+zfs create -o mountpoint=/var/opt/docker zfs-pool/var-opt-docker
+chown -R docker:docker /var/opt/docker
+
+zfs create -o mountpoint=/var/opt/configmaps zfs-pool/configmaps
+
+zfs set canmount=off zfs-pool
+rmdir /zfs-pool
+df
+
+zfs snapshot zfs-pool/var-opt-docker@`date +%y%m%d%H%M`
+zfs list -t snapshot
+zfs snapshot -r zfs-pool@`date +%y%m%d%H%M`  # Creates snapshots for all datasets in pool
+zfs destroy zfs-pool/var-opt-docker@2302081611
+zfs list -t snapshot | grep 2302161507 | awk '{print $1}' | xargs -I {} zfs destroy {}
+<https://klarasystems.com/articles/basics-of-zfs-snapshot-management/>
+
+apk add zfs-auto-snapshot   <-- adds to /etc/periodic/*/ to automatically take and rotate snapshots
+
+vi /etc/ssh/sshd_config
+  AllowUsers root
+
+vi /etc/apk/repositories 
+   <uncomment community>
+apk update
+adduser -G docker docker
+chown -R docker:docker /var/lib/docker
+apk add docker
+rc-update add docker boot
+service docker start  # or /etc/init.d/docker start
+reboot
+
+su - docker
+docker run --rm hello-world
+
+<https://wiki.alpinelinux.org/wiki/Docker> Isolate containers with a user namespace
+<https://docs.docker.com/storage/storagedriver/zfs-driver/>
+adduser -SDHs /sbin/nologin dockremap
+addgroup -S dockremap
+echo dockremap:$(cat /etc/passwd|grep dockremap|cut -d: -f3):65536 >> /etc/subuid
+echo dockremap:$(cat /etc/passwd|grep dockremap|cut -d: -f4):65536 >> /etc/subgid
+
+vi /etc/docker/daemon.json
+{
+  "userns-remap": "dockremap",
+  "ipv6": false,
+  "experimental": false,
+  "icc": false,
+  "storage-driver": "zfs" 
+  "insecure-registries": [ "registry.localdomain:5000" ]
+}
+
+docker info
+
+apk add git
+mkdir -p /root/source/bgant
+cd /root/source/bgant
+git clone https://github.com/bgant/tools
+
+# DO NOT USE PIP FOR ENTIRE HOST OS
+apk list -I | grep py3-
+apk add py3-requests py3-paho-mqtt  <-- crontab -l light_control.py script
+
+vi /etc/services
+# Local services
+rtl-433         1433/udp
+mqtt            1883/tcp
+grafana         3000/tcp
+burp            4971/tcp
+registry        5000/tcp
+zigbee2mqtt     8081/tcp
+dokuwiki        8082/tcp
+munin           8083/tcp
+influxdb        8086/tcp
+
+apk add munin-node inetutils-telnet lm-sensors procps findutils
+munin-node-configure --suggestions 
+munin-node-configure --shell | sh    <-- Links suggestions from /usr/lib/munin/plugins/ to /etc/munin/plugins/
+vi /etc/munin/munin-node.conf
+   allow ^172\.17\.0\.4$
+rc-service munin-node restart
+vi /var/opt/configmaps/env-file-munin
+   NODES=docker-asus:172.17.0.1 
+docker restart munin
+docker exec -it munin /bin/bash
+   apk update
+   apk add inetutils-telnet
+   telnet 172.17.0.1 4949
+     list
+     fetch load
+     quit
+   exit
+cd /root/source
+mkdir munin-monitoring
+cd munin-monitoring
+git clone https://github.com/munin-monitoring/contrib
+
+<Source: https://gallery.munin-monitoring.org/plugins/munin-contrib/zfs_usage_/>
+ln -s /root/source/munin-monitoring/contrib/plugins/zfs/zfs_usage_ /etc/munin/plugins/zfs_usage_zfs-pool
+vi /etc/munin/plugin-conf.d/zzz-myconf
+[zfs_usage_*]
+ user root
+ env.zpoolexec /usr/sbin/zpool
+ env.zfsexec   /usr/sbin/zfs
+rc-service munin-node restart
+tail -f /var/log/munin/munin-node.log
+
+<Source: https://gallery.munin-monitoring.org/plugins/munin-contrib/docker_/>
+vi /etc/munin/plugin-conf.d/zzz-myconf 
+[docker_*]
+ user root
+ env.DOCKER_HOST unix://run/docker.sock
+ln -s /root/source/munin-monitoring/contrib/plugins/docker/docker_ /etc/munin/plugins/docker_cpu
+ln -s /root/source/munin-monitoring/contrib/plugins/docker/docker_ /etc/munin/plugins/docker_memory
+ln -s /root/source/munin-monitoring/contrib/plugins/docker/docker_ /etc/munin/plugins/docker_network
+ln -s /root/source/munin-monitoring/contrib/plugins/docker/docker_ /etc/munin/plugins/docker_containers
+ln -s /root/source/munin-monitoring/contrib/plugins/docker/docker_ /etc/munin/plugins/docker_images
+apk add py3-dockerpty
+rc-service munin-node restart
+
+
+zpool status
+zfs list | grep -v legacy
+

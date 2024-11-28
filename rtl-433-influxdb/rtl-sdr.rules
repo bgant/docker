@@ -1,0 +1,24 @@
+# Extracted from installed /usr/lib/udev/rules.d/rtl-sdr.rules package file
+#
+# docker-asus:~# dmesg | grep ' 2-1.1'
+# [    2.019432] hub 2-1:1.0: USB hub found
+# [    2.019682] hub 2-1:1.0: 6 ports detected
+# [    2.305154] usb 2-1.1: new high-speed USB device number 3 using ehci-pci
+# [    2.417759] usb 2-1.1: New USB device found, idVendor=0bda, idProduct=2838, bcdDevice= 1.00
+# [    2.417763] usb 2-1.1: New USB device strings: Mfr=1, Product=2, SerialNumber=3
+# [    2.417764] usb 2-1.1: Product: RTL2838UHIDIR
+# [    2.417765] usb 2-1.1: Manufacturer: Realtek
+# [    2.417766] usb 2-1.1: SerialNumber: 00000001
+# [    8.661617] usb 2-1.1: dvb_usb_v2: found a 'Realtek RTL2832U reference design' in warm state
+# [    8.720522] usb 2-1.1: dvb_usb_v2: will pass the complete MPEG2 transport stream to the software demuxer
+# [    8.732507] usb 2-1.1: DVB: registering adapter 0 frontend 0 (Realtek RTL2832 (DVB-T))...
+# [    8.823492] usb 2-1.1: dvb_usb_v2: schedule remote query interval to 200 msecs
+# [    8.831971] usb 2-1.1: dvb_usb_v2: 'Realtek RTL2832U reference design' successfully initialized and connected
+#
+# docker-asus:~# udevadm test /sys/bus/usb/devices/2-1.1
+# docker-asus:~# udevadm info --attribute-walk --name=/dev/bus/usb/002/003
+# docker-asus:~# udevadm control --reload && udevadm trigger  --OR--  /etc/init.d/udev restart
+# docker-asus:~# ls -l /dev/
+
+# RTL2832U OEM vid/pid, e.g. ezcap EzTV668 (E4000), Newsky TV28T (E4000/R820T) etc.
+SUBSYSTEMS=="usb", ATTRS{idVendor}=="0bda", ATTRS{idProduct}=="2838", MODE:="0666", SYMLINK+="usb-rtl-sdr"

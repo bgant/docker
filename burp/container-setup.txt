@@ -1,0 +1,58 @@
+
+<Execute Shell>
+cd /etc/burp
+tar cvfz /tmp/etc-burp.tar.gz .
+apk update
+apk add openssh-client
+scp /tmp/etc-burp.tar.gz root@docker-asus:/var/opt/configmaps/
+
+<docker-asus>
+cd /var/opt/docker/burp/etc-burp/
+tar xvfz /var/opt/configmaps/etc-burp.tar.gz .
+
+
+docker run -it --rm \
+    --name burp \
+    -p 0.0.0.0:4971:4971 \
+    --volume /var/opt/docker/burp/etc-burp:/etc/burp \
+    --volume /var/opt/docker/burp/var-spool-burp:/var/spool/burp \
+    172.17.0.1:5000/burp:2023-04-16
+
+
+docker run -d \
+    --name burp \
+    --restart unless-stopped \
+    -p 0.0.0.0:4971:4971 \
+    --volume /var/opt/docker/burp/etc-burp:/etc/burp \
+    --volume /var/opt/docker/burp/var-spool-burp:/var/spool/burp \
+    172.17.0.1:5000/burp:2023-04-16
+
+
+MIGRATE TO NAMED DOCKER VOLUME:
+
+docker stop burp
+docker rename burp burp-old
+
+docker volume create --driver local \
+    --opt type=none \
+    --opt device=/var/opt/docker/burp-etc \
+    --opt o=bind \
+    burp-etc
+
+docker volume create --driver local \
+    --opt type=none \
+    --opt device=/var/opt/docker/burp-backup-data \
+    --opt o=bind \
+    burp-backup-data 
+
+docker volume ls
+
+docker run -d \
+    --name burp \
+    --restart unless-stopped \
+    -p 0.0.0.0:4971:4971 \
+    --volume burp-etc:/etc/burp \
+    --volume burp-backup-data:/var/spool/burp \
+    172.17.0.1:5000/burp:2024-06-03
+
+docker rm burp-old

@@ -1,0 +1,58 @@
+
+/var/opt/configmaps/env-file-grafana   <-- No quotes around values / spaces in values is OK
+GF_AUTH_ANONYMOUS_ENABLED=true
+GF_AUTH_ANONYMOUS_ORG_NAME=anonymous
+GF_AUTH_ANONYMOUS_ORG_ROLE=Viewer
+GF_INSTALL_PLUGINS=fetzerch-sunandmoon-datasource
+GF_SERVER_DOMAIN=main-nginx
+GF_SERVER_ROOT_URL=%(protocol)s://%(domain)s:%(http_port)s/dashboard/
+GF_SERVER_SERVE_FROM_SUB_PATH=true
+GF_USERS_ALLOW_SIGN_UP=false
+
+
+docker run -it --rm \
+    --name grafana \
+    -p 0.0.0.0:3000:3000 \
+    --env-file /var/opt/configmaps/env-file-grafana \
+    --volume /var/opt/docker/grafana:/var/lib/grafana \
+    grafana/grafana:9.4.7
+
+docker exec -it grafana /bin/sh
+id
+uid=472(grafana) gid=0(root) groups=0(root)
+exit
+chown -R 573:nogroup /var/opt/docker/grafana
+
+
+docker run -d \
+    --name grafana \
+    --restart unless-stopped \
+    -p 0.0.0.0:3000:3000 \
+    --env-file /var/opt/configmaps/env-file-grafana \
+    --volume /var/opt/docker/grafana:/var/lib/grafana \
+    grafana/grafana:9.4.7
+
+
+MIGRATE TO NAMED DOCKER VOLUME:
+
+docker volume create --driver local \
+    --opt type=none \
+    --opt device=/var/opt/docker/grafana \
+    --opt o=bind \
+    grafana
+
+docker volume ls
+
+docker run -d \
+    --name grafana \
+    --restart unless-stopped \
+    -p 0.0.0.0:3000:3000 \
+    --env-file /var/opt/configmaps/env-file-grafana \
+    --volume grafana:/var/lib/grafana \
+    grafana/grafana:10.2.3
+
+--OR--
+
+docker compose -f grafana.yaml up --detach
+docker compose -f grafana.yaml down
+

@@ -1,0 +1,29 @@
+name: grafana
+services:
+    grafana:
+        container_name: grafana
+        restart: unless-stopped
+        ports:
+            - 0.0.0.0:3000:3000
+        env_file:
+            - /var/opt/configmaps/env-file-grafana
+        environment:
+            - GF_RENDERING_RENDERER_TOKEN=hello
+            - GF_RENDERING_SERVER_URL=http://192.168.7.140:8085/render
+            - GF_RENDERING_CALLBACK_URL=http://192.168.7.140:3000/
+            - GF_LOG_FILTERS=rendering:debug 
+        volumes:
+            - grafana:/var/lib/grafana
+        image: grafana/grafana:9.5.19-ubuntu
+    renderer:
+        container_name: grafana-image-renderer
+        restart: unless-stopped
+        ports:
+            - 0.0.0.0:8085:8081
+        environment:
+            - AUTH_TOKEN=hello
+        image: grafana/grafana-image-renderer:3.10.5
+volumes:
+    grafana:
+        external: true
+        name: grafana

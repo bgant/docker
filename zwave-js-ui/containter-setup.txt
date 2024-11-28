@@ -1,0 +1,42 @@
+
+
+cp zwave-js-ui.rules /etc/udev/rules.d/
+reboot
+ls -l /dev/ | grep ttyUSB0
+docker run --rm -it -p 8091:8091 --device=/dev/usb-zwave:/dev/usb-zwave zwavejs/zwave-js-ui:9.5.1
+Open browser to http://192.168.7.110:8091
+
+
+mkdir /var/opt/docker/zwave-js-ui
+chown dockremap:nogroup /var/opt/docker/zwave-js-ui
+docker volume create --driver local \
+    --opt type=none \
+    --opt device=/var/opt/docker/zwave-js-ui \
+    --opt o=bind \
+    zwave-js-ui
+
+docker volume ls
+
+
+ports:
+-p 0.0.0.0:8091:8091  # port for web interface
+-p 0.0.0.0:3000:3000  # port for Z-Wave JS websocket server (Home Assistant Conntection) / Also same port number as Grafana
+
+Container can use any name or symlink of a /dev device on the host (you will get a file not found error if not)
+    With the USB mounted to ttyUSB0 and udev rule SYMLINK+=/dev/zwave, the following will all work:
+    --device=/dev/ttyUSB0:/dev/ttyUSB0
+    --device=/dev/ttyUSB0:/dev/usb-zwave
+    --device=/dev/usb-zwave:/dev/ttyUSB0
+    --device=/dev/serial/by-id/usb-Silicon_Labs_CP2102N_USB_to_UART_Bridge_Controller_f2e378fc7e74ec11b43bb05019c2d21c-if00-port0:/dev/usb-zwave
+
+
+docker run -d \
+   --name zwave-js-ui \
+   --restart=unless-stopped \
+   --device=/dev/zwave:/dev/zwave \
+   -p 0.0.0.0:8091:8091 \
+   -v zwave-js-ui:/usr/src/app/store/ \
+   -e TZ=America/Chicago \
+   zwavejs/zwave-js-ui:9.27.7
+
+docker logs -f zigbee2mqtt
