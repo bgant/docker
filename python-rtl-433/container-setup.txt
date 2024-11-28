@@ -1,0 +1,11 @@
+docker run -it --rm --name python-rtl-433 --device=/dev/bus/usb:/dev/bus/usb python-rtl-433:latest
+
+docker run -it --rm --name python-rtl-433 --device=/dev/bus/usb:/dev/bus/usb python-rtl-433:latest /bin/sh
+/usr/src/app # rtl_433 -f 915M -s 250K -R 76 -F json | python3 pipe-json.py
+
+docker run -d \
+    --name python-rtl-433 \
+    --restart unless-stopped \
+    --device=/dev/bus/usb:/dev/bus/usb \
+    python-rtl-433:latest
+
