@@ -70,6 +70,16 @@ docker rm zigbee2mqtt-old
    --health-interval=30s \
    --health-timeout=5s \
 
+/app # ! find /app/data/log/ -mtime -1 -name log.log | sort | awk 'END{print}' | xargs -i grep -i -E "error" {}
+[2024-11-28 16:13:03] error:    z2m: Invalid message 'null', skipping...
+/app # echo $?
+1  <-- Exit 1 if the command finds "error" (because of ! at beginning of command)
+
+/app # ! find /app/data/log/ -mtime -1 -name log.log | sort | awk 'END{print}' | xargs -i grep -i -E "warn" {}
+/app # echo $?
+0  <-- Exit 0 if the command DOES NOT find the word grep is looking for (because of ! at beginning of command)
+
+
 # This causes and error in the zigbee2mqtt log (for testing healthcheck)
 mosquitto_pub -h 172.17.0.1 -p 1883 -t 'zigbee2mqtt/FrontOutsideLights/get' -n
 
