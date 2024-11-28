@@ -1,15 +1,20 @@
+# JSON data is piped into this script
+# Example: ./rtl-433.sh | pipe-json.py
+
 import sys
 import json
 
+# This module sends data to Webdis/Redis
 from webdis import WEBDIS
 webdis = WEBDIS()
 
+# Create a generator function for piped JSON data 
 def create_generator():
     for line in sys.stdin:
         if "time" in line:
-            #sys.stdout.write(line)
             yield json.loads(line)
 
+# Create generator object, access JSON data, and send to Webdis server
 mygenerator = create_generator()
 for item in mygenerator:
     temp_F = (9 * float(item['temperature_C']))/5 + 32

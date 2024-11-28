@@ -3,12 +3,13 @@ ENV TZ="US/Central"
 WORKDIR /usr/src/app
 RUN apk update && apk add --no-cache rtl_433 
 RUN pip install --no-cache-dir requests
-COPY pipe-json.py ./
-COPY webdis.py ./
-COPY rtl-433.sh ./
-
-#COPY . .
-#CMD [ "python", "./your-daemon-or-script.py" ]
+COPY *.py ./
+COPY *.sh ./
+CMD [ "./main.sh" ]
 
 # docker build -t python-rtl-433 .
-# docker run -it --rm -v /home/docker/source/bgant/tools/alpine-zfs-docker/eclipse-mosquitto:/usr/src/myapp -w /usr/src/myapp python-pip python light_control.py
+# docker run -it --rm --device=/dev/bus/usb:/dev/bus/usb python-rtl-433
+# docker run -it --rm --device=/dev/bus/usb:/dev/bus/usb python-rtl-433 /bin/sh  <-- run commands manually in container
+
+# Difference between RUN, CMD, ENTRYPOINT:
+# https://www.baeldung.com/ops/dockerfile-run-cmd-entrypoint
