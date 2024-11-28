@@ -56,9 +56,20 @@ docker run -d \
    --device=/dev/zigbee:/dev/ttyACM0 \
    -p 0.0.0.0:8081:8080 \
    -v zigbee2mqtt:/app/data \
-   -v /run/udev:/run/udev:ro \
    -e TZ=America/Chicago \
+   -v /run/udev:/run/udev:ro \
    koenkk/zigbee2mqtt:1.38.0
 
 docker rm zigbee2mqtt-old
+
+# For some reason when zigbee2mqtt is restarted it loses access to /dev/zigbee:
+#   Error: Error while opening serialport 'Error: Error: Operation not permitted, cannot open /dev/ttyACM0'
+# Running udevadm control --reload-rules && udevadm trigger as root doesn't work
+# Only thing that works (so far) is rebooting the alpine-docker VM
+   --health-cmd="! find /app/data/log/ -mtime -1 -name log.log | sort | awk 'END{print}' | xargs -i grep -i -E error {}" \
+   --health-interval=30s \
+   --health-timeout=5s \
+
+# This causes and error in the zigbee2mqtt log (for testing healthcheck)
+mosquitto_pub -h 172.17.0.1 -p 1883 -t 'zigbee2mqtt/FrontOutsideLights/get' -n
 
