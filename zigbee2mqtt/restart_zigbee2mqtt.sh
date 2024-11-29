@@ -3,10 +3,10 @@
 # apk add mosquitto-clients
 #
 # crontab -l
-# 00     16       *       *       *       /root/source/bgant/tools/alpine-zfs-docker/zigbee2mqtt/restart_zigbee2mqtt.sh
-# 10     16       *       *       *       /root/source/bgant/tools/alpine-zfs-docker/eclipse-mosquitto/light_control.py
-# 01     21       *       *       *       /root/source/bgant/tools/alpine-zfs-docker/eclipse-mosquitto/light_control.py
-# 00     22       *       *       *       /root/source/bgant/tools/alpine-zfs-docker/eclipse-mosquitto/light_control.py
+# 00     16       *       *       *       /root/source/bgant/docker/zigbee2mqtt/restart_zigbee2mqtt.sh
+# 10     16       *       *       *       /root/source/bgant/docker/eclipse-mosquitto/light_control.sh
+# 01     21       *       *       *       /root/source/bgant/docker/eclipse-mosquitto/light_control.sh
+# 00     22       *       *       *       /root/source/bgant/docker/eclipse-mosquitto/light_control.sh
 
 echo "Sending Request to Turn Lights Off..."
 mosquitto_pub -h 172.17.0.1 -p 1883 -t 'zigbee2mqtt/FrontOutsideLights/set' -m '{ "state": "OFF" }'
