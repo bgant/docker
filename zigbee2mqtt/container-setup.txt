@@ -58,11 +58,15 @@ docker run -d \
    -v zigbee2mqtt:/app/data \
    -e TZ=America/Chicago \
    -v /run/udev:/run/udev:ro \
-   koenkk/zigbee2mqtt:1.38.0
+   --health-cmd='ash /app/zigbee2mqtt_healthcheck.sh || exit 1' \
+   --health-interval=30s \
+   --health-timeout=10s \
+   --health-retries=3 \
+   zigbee2mqtt-healthcheck:latest
 
 docker rm zigbee2mqtt-old
 
-# For some reason when zigbee2mqtt is restarted it loses access to /dev/zigbee:
+# Somtimes when zigbee2mqtt is restarted it loses access to /dev/zigbee:
 #   Error: Error while opening serialport 'Error: Error: Operation not permitted, cannot open /dev/ttyACM0'
 # Running udevadm control --reload-rules && udevadm trigger as root doesn't work
 # Only thing that works (so far) is rebooting the alpine-docker VM
@@ -70,15 +74,7 @@ docker rm zigbee2mqtt-old
    --health-interval=30s \
    --health-timeout=5s \
 
-/app # ! find /app/data/log/ -mtime -1 -name log.log | sort | awk 'END{print}' | xargs -i grep -i -E "error" {}
-[2024-11-28 16:13:03] error:    z2m: Invalid message 'null', skipping...
-/app # echo $?
-1  <-- Exit 1 if the command finds "error" (because of ! at beginning of command)
-
-/app # ! find /app/data/log/ -mtime -1 -name log.log | sort | awk 'END{print}' | xargs -i grep -i -E "warn" {}
-/app # echo $?
-0  <-- Exit 0 if the command DOES NOT find the word grep is looking for (because of ! at beginning of command)
-
+Adding a grep to the end of any healthcheck creates exit 0 if found and exit 1 if not (echo $? after running command).
 
 # This causes and error in the zigbee2mqtt log (for testing healthcheck)
 mosquitto_pub -h 172.17.0.1 -p 1883 -t 'zigbee2mqtt/FrontOutsideLights/get' -n
