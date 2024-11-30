@@ -15,7 +15,12 @@ docker run -d \
     --env REDIS_HOST="172.17.0.1" \
     --env REDIS_PORT="6379" \
     --volume /var/opt/configmaps/webdis.new.json:/etc/webdis.new.json:ro \
-    -p 0.0.0.0:7379:7379 nicolas/webdis:0.1.23 \
+    -p 0.0.0.0:7379:7379 \
+    --health-cmd='wget -q -O - http://127.0.0.1:7379/PING | grep PONG' \
+    --health-interval=30s \
+    --health-timeout=10s \
+    --health-retries=3 \
+    nicolas/webdis:0.1.23 \
     /usr/local/bin/webdis /etc/webdis.new.json
 
 

@@ -38,9 +38,9 @@ docker run -d \
     --volume /var/opt/configmaps/redis.conf:/etc/redis.conf:ro \
     --volume /var/opt/configmaps/redis_aclfile.conf:/etc/redis_aclfile.conf:ro \
     --health-cmd='redis-cli AUTH healthcheck ping | grep OK' \
+    --health-interval=30s \
     --health-timeout=10s \
     --health-retries=3 \
-    --health-interval=5s \
     redislabs/redistimeseries:1.12.2 \
     redis-server /etc/redis.conf
 
