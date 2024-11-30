@@ -47,6 +47,10 @@ docker run -d \
    -p 0.0.0.0:1883:1883 \
    -v /var/opt/docker/eclipse-mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro \
    -v eclipse-mosquitto:/mosquitto/data/ \
+   --health-cmd="mosquitto_sub -t '$SYS/#' -C 1 -i healthcheck -W 3" \
+   --health-interval=60s \
+   --health-timeout=10s \
+   --health-retries=3 \
    eclipse-mosquitto:2.0.18
 
 docker rm eclipse-mosquitto-old
