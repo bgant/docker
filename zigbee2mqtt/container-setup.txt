@@ -58,21 +58,23 @@ docker run -d \
    -v zigbee2mqtt:/app/data \
    -e TZ=America/Chicago \
    -v /run/udev:/run/udev:ro \
-   --health-cmd='ash /app/zigbee2mqtt_healthcheck.sh || exit 1' \
-   --health-interval=30s \
-   --health-timeout=10s \
-   --health-retries=3 \
-   zigbee2mqtt-healthcheck:latest
+   koenkk/zigbee2mqtt:1.38.0
 
 docker rm zigbee2mqtt-old
 
-# Somtimes when zigbee2mqtt is restarted it loses access to /dev/zigbee:
+# Running healthchecks causes zigbee2mqtt to lose access to /dev/zigbee:
 #   Error: Error while opening serialport 'Error: Error: Operation not permitted, cannot open /dev/ttyACM0'
 # Running udevadm control --reload-rules && udevadm trigger as root doesn't work
 # Only thing that works (so far) is rebooting the alpine-docker VM
    --health-cmd="! find /app/data/log/ -mtime -1 -name log.log | sort | awk 'END{print}' | xargs -i grep -i -E error {}" \
    --health-interval=30s \
    --health-timeout=5s \
+
+   --health-cmd='ash /app/zigbee2mqtt_healthcheck.sh || exit 1' \                                                         
+   --health-interval=30s \                                                                                                
+   --health-timeout=10s \                                                                                                 
+   --health-retries=3 \
+   zigbee2mqtt-healthcheck:latest
 
 Adding a grep to the end of any healthcheck creates exit 0 if found and exit 1 if not (echo $? after running command).
 
