@@ -1,0 +1,11 @@
+docker run -it --rm --name python-rtl-915 --device=/dev/bus/usb:/dev/bus/usb python-rtl-915:latest
+
+docker run -it --rm --name python-rtl-915 --device=/dev/bus/usb:/dev/bus/usb python-rtl-915:latest /bin/sh
+/usr/src/app # rtl_433 -d 0 -f 915M -Y classic -s 250K -F json | python3 pipe-json.py
+
+docker run -d \
+    --name python-rtl-915 \
+    --restart unless-stopped \
+    --device=/dev/bus/usb:/dev/bus/usb \
+    python-rtl-915:latest
+
