@@ -38,7 +38,7 @@ for item in mygenerator:  # item is just a dictionary
         print(f"{item['model']} ID:{item['id']} Consumption:{item['consumption']} Backflow:{item['backflow']} LeakNow:{item['leaknow']}")
         webdis_water_meter(item['id'])
     else:
-        print("Not Sent to Webdis: ", item)
+        print("UNKNOWN: ", item)
 
 
 # EXAMPLE rtl_433 json:
