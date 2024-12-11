@@ -1,0 +1,13 @@
+
+mkdir /var/opt/docker/python-http
+cd /var/opt/docker/python-http
+vi index.html
+
+docker run -it --rm --name python-http -p 0.0.0.0:80:8000 -v /var/opt/docker/python-http:/usr/src/app:ro python-pip:latest python3 -m http.server
+
+docker run -d \
+    --name python-http \
+    --restart unless-stopped \
+    -p 0.0.0.0:80:8000 \
+    -v /var/opt/docker/python-http:/usr/src/app:ro \
+    python-pip:latest python3 -m http.server
