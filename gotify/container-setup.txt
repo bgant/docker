@@ -1,0 +1,21 @@
+mkdir /var/opt/docker/gotify
+docker volume create --driver local \
+    --opt type=none \
+    --opt device=/var/opt/docker/gotify \
+    --opt o=bind \
+    gotify
+chown dockremap:nogroup /var/opt/docker/gotify
+
+docker volume ls
+
+docker run -it --rm --name gotify --env-file /var/opt/configmaps/env-file-gotify -p 0.0.0.0:8084:8084 -v gotify:/app/data gotify/server:2.6.1
+
+docker run -d \
+    --name gotify \
+    --restart unless-stopped \
+    --stop-timeout 60 \
+    -p 0.0.0.0:8084:8084 \
+    --env-file /var/opt/configmaps/env-file-gotify \
+    --volume gotify:/app/data \
+    gotify/server:2.6.1
+
