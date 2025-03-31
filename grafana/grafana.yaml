@@ -22,7 +22,7 @@ services:
             - 0.0.0.0:8085:8081
         environment:
             - AUTH_TOKEN=hello
-        image: grafana/grafana-image-renderer:3.10.5
+        image: grafana/grafana-image-renderer:3.12.4
 volumes:
     grafana:
         external: true
