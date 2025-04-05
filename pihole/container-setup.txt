@@ -13,6 +13,7 @@ docker exec -it pihole pihole -a -p            <-- OR set admin password
 http://docker-asus.localdomain:8084/admin/
 
 
+BACKUP CONFIG: Pihole Web Interface --> Settings --> Teleporter --> Export
 docker stop pihole
 docker rm pihole
 docker run -d \
@@ -21,9 +22,11 @@ docker run -d \
     -p 0.0.0.0:53:53/tcp -p 0.0.0.0:53:53/udp \
     -p 0.0.0.0:8084:80 \
     --env-file /var/opt/configmaps/env-file-pihole \
-    pihole/pihole:2024.05.0
+    pihole/pihole:2025.04.0
 
-Pihole Web Interface --> settings --> Teleporter --> File Input: Browse --> Restore
+RESTORE CONFIG: Pihole Web Interface --> Settings --> Teleporter --> File Input: Browse --> Import
+UPDATE GRAVITY: Pihole Web Interface --> Tools --> Update Gravity
+
 
 docker logs -f pihole
     [i] Assigning random password: <random>    <-- Copy random admin password
@@ -47,4 +50,25 @@ iface eth0 inet static
     address 192.168.7.110
     gateway 192.168.7.1
     hostname docker-asus 
+
+
+########################################
+# Moved back to Docker from Raspberry Pi
+########################################
+
+BACKUP CONFIG: Pihole Web Interface --> Settings --> Teleporter --> Export                        
+docker stop pihole                                                                                
+docker rm pihole                                                                                  
+docker run -d \                                                                                   
+    --name pihole \                                                                               
+    --restart unless-stopped \                                                                    
+    -p 0.0.0.0:53:53/tcp -p 0.0.0.0:53:53/udp \                                                   
+    -p 0.0.0.0:8084:80 \                                                                          
+    --env-file /var/opt/configmaps/env-file-pihole \                                              
+    pihole/pihole:2025.04.0                                                                       
+
+docker logs pihole | grep random  <-- Copy Random Password
+                                                                                                  
+RESTORE CONFIG: Pihole Web Interface --> Settings --> Teleporter --> File Input: Browse --> Import
+UPDATE GRAVITY: Pihole Web Interface --> Tools --> Update Gravity
 
