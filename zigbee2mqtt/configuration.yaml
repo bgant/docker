@@ -1,8 +1,8 @@
 homeassistant: false
-permit_join: true
+permit_join: false
 mqtt:
   base_topic: zigbee2mqtt
-  server: mqtt://172.17.0.1:1883  # docker0 bridge
+  server: mqtt://10.88.0.1:1883  # podman0 bridge
 serial:
   port: /dev/ttyACM0
 frontend: true

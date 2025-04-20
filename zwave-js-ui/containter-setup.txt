@@ -1,7 +1,8 @@
 
-
+apk add udev usbutils
 cp zwave-js-ui.rules /etc/udev/rules.d/
 reboot
+
 ls -l /dev/ | grep ttyUSB0
 docker run --rm -it -p 8091:8091 --device=/dev/usb-zwave:/dev/usb-zwave zwavejs/zwave-js-ui:9.5.1
 Open browser to http://192.168.7.110:8091
@@ -40,3 +41,21 @@ docker run -d \
    zwavejs/zwave-js-ui:9.27.7
 
 docker logs -f zigbee2mqtt
+
+
+#############################################
+# Migration to Podman
+#############################################
+
+podman search zwave-js-ui 
+
+podman run -d \
+   --name zwave-js-ui \
+   --restart=always \
+   --device=/dev/zwave:/dev/zwave \
+   -p 0.0.0.0:8091:8091 \
+   -v zwave-js-ui:/usr/src/app/store/ \
+   -e TZ=America/Chicago \
+   docker.io/zwavejs/zwave-js-ui:9.27.7
+
+

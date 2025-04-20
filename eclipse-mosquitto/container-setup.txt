@@ -56,3 +56,19 @@ docker run -d \
    --health-retries=3 \
 
 docker rm eclipse-mosquitto-old
+
+
+#########################################################
+# Migration to Podman
+#########################################################
+
+podman search eclipse-mosquitto --filter=is-official
+
+podman run -d \
+   --name eclipse-mosquitto \
+   --restart always \
+   -p 0.0.0.0:1883:1883 \
+   -v /root/source/bgant/docker/eclipse-mosquitto/mosquitto.conf:/mosquitto/config/mosquitto.conf:ro \
+   -v eclipse-mosquitto:/mosquitto/data/ \
+   docker.io/library/eclipse-mosquitto:2.0.18
+

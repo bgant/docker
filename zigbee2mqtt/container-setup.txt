@@ -81,3 +81,21 @@ Adding a grep to the end of any healthcheck creates exit 0 if found and exit 1 i
 # This causes and error in the zigbee2mqtt log (for testing healthcheck)
 mosquitto_pub -h 172.17.0.1 -p 1883 -t 'zigbee2mqtt/FrontOutsideLights/get' -n
 
+
+######################################
+# Migrate to Podman
+######################################
+
+podman search zigbee2mqtt
+
+podman run -d \
+   --name zigbee2mqtt \
+   --restart=always \
+   --device=/dev/zigbee:/dev/ttyACM0 \
+   -p 0.0.0.0:8081:8080 \
+   -v zigbee2mqtt:/app/data \
+   -v /root/source/bgant/docker/zigbee2mqtt/configuration.yaml:/app/data/configuration.yaml:ro \
+   -v /run/udev:/run/udev:ro \
+   -e TZ=America/Chicago \
+   docker.io/koenkk/zigbee2mqtt:1.38.0
+
