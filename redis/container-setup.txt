@@ -49,5 +49,23 @@ docker run -d \
     --OR--
     redis-server --loadmodule /usr/lib/redis/modules/redistimeseries.so --save 3600 1 300 5 60 10
 
-# Sources: 
-#    
+
+########################################
+# Migration to Podman
+########################################
+
+podman run -d \
+    --name redis \
+    --restart always \
+    -p 0.0.0.0:6379:6379 \
+    --volume redis:/data \
+    --env TZ=US/Central \
+    --volume /root/configs/redis.conf:/etc/redis.conf:ro \
+    --volume /root/configs/redis_aclfile.conf:/etc/redis_aclfile.conf:ro \
+    --health-cmd='redis-cli AUTH healthcheck ping | grep OK' \
+    --health-interval=30s \
+    --health-timeout=10s \
+    --health-retries=3 \
+    docker.io/redislabs/redistimeseries:1.12.2 \
+    redis-server /etc/redis.conf
+

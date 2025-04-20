@@ -11,3 +11,15 @@ docker run -d \
     -p 0.0.0.0:80:8000 \
     -v /var/opt/docker/python-http:/usr/src/app:ro \
     python-pip:latest python3 -m http.server
+
+
+############################
+# Migration to Podman
+############################
+
+podman run -d \
+    --name python-http \
+    --restart always \
+    -p 0.0.0.0:80:8000 \
+    -v python-http:/usr/src/app:ro \
+    localhost:5000/python-pip:latest python3 -m http.server

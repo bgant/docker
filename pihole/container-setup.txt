@@ -72,3 +72,18 @@ docker logs pihole | grep random  <-- Copy Random Password
 RESTORE CONFIG: Pihole Web Interface --> Settings --> Teleporter --> File Input: Browse --> Import
 UPDATE GRAVITY: Pihole Web Interface --> Tools --> Update Gravity
 
+
+######################################
+# Migration to Podman
+######################################
+
+BACKUP CONFIG: Pihole Web Interface --> Settings --> Teleporter --> Export 
+
+podman run -d \
+    --name pihole \
+    --restart always \
+    -p 0.0.0.0:53:53/tcp -p 0.0.0.0:53:53/udp \
+    -p 0.0.0.0:8084:80 \
+    --env-file /root/configs/env-file-pihole \
+    docker.io/pihole/pihole:2025.04.0
+

@@ -2,11 +2,11 @@ name: grafana
 services:
     grafana:
         container_name: grafana
-        restart: unless-stopped
+        restart: always
         ports:
             - 0.0.0.0:3000:3000
         env_file:
-            - /var/opt/configmaps/env-file-grafana
+            - /root/configs/env-file-grafana
         environment:
             - GF_RENDERING_RENDERER_TOKEN=hello
             - GF_RENDERING_SERVER_URL=http://192.168.7.140:8085/render
@@ -14,15 +14,15 @@ services:
             - GF_LOG_FILTERS=rendering:debug 
         volumes:
             - grafana:/var/lib/grafana
-        image: grafana/grafana:9.5.21-ubuntu
+        image: docker.io/grafana/grafana:9.5.21-ubuntu
     renderer:
         container_name: grafana-image-renderer
-        restart: unless-stopped
+        restart: always
         ports:
             - 0.0.0.0:8085:8081
         environment:
             - AUTH_TOKEN=hello
-        image: grafana/grafana-image-renderer:3.12.4
+        image: docker.io/grafana/grafana-image-renderer:3.12.4
 volumes:
     grafana:
         external: true

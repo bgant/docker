@@ -56,3 +56,16 @@ docker run -d \
 docker compose -f grafana.yaml up --detach
 docker compose -f grafana.yaml down
 
+
+######################################
+# Migration to Podman
+######################################
+
+podman run -d \
+    --name grafana \
+    --restart always \
+    -p 0.0.0.0:3000:3000 \
+    --env-file /root/configs/env-file-grafana \
+    --volume grafana:/var/lib/grafana \
+    docker.io/grafana/grafana:10.2.3 
+

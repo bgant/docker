@@ -38,3 +38,22 @@ docker-asus:~# curl -s http://127.0.0.1:7379/TS.ADD/test/*/27
 docker-asus:~# curl -s http://127.0.0.1:7379/AUTH/test/6cbe181d98271ad834de512d77821e831bf8f2d1aa68333d7994f93082a3f51b
 {"AUTH":[true,"OK"]}
 
+
+#######################################
+# Migration to Podman
+#######################################
+
+podman run -d \
+    --name webdis \
+    --restart always \
+    --env REDIS_HOST="10.88.0.1" \
+    --env REDIS_PORT="6379" \
+    --volume /root/configs/webdis.new.json:/etc/webdis.new.json:ro \
+    -p 0.0.0.0:7379:7379 \
+    --health-cmd='wget -q -O - http://127.0.0.1:7379/PING | grep PONG' \
+    --health-interval=30s \
+    --health-timeout=10s \
+    --health-retries=3 \
+    docker.io/nicolas/webdis:0.1.23 \
+    /usr/local/bin/webdis /etc/webdis.new.json
+
