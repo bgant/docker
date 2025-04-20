@@ -1,4 +1,4 @@
-#!/bin/bash
+#!/bin/sh
 #
 # apk add mosquitto-clients
 #
@@ -9,13 +9,13 @@
 # 00     22       *       *       *       /root/source/bgant/docker/eclipse-mosquitto/light_control.sh
 
 echo "Sending Request to Turn Lights Off..."
-mosquitto_pub -h 172.17.0.1 -p 1883 -t 'zigbee2mqtt/FrontOutsideLights/set' -m '{ "state": "OFF" }'
+mosquitto_pub -h 10.88.0.1 -p 1883 -t 'zigbee2mqtt/FrontOutsideLights/set' -m '{ "state": "OFF" }'
 echo "Waiting 30 seconds for any errors..."
 sleep 30
-if [ `docker logs --since 2m zigbee2mqtt | grep -c Error` != 0 ]
+if [ `podman logs --since 2m zigbee2mqtt | grep -c Error` != 0 ]
 then 
    echo "Errors Found in Logs... Restarting Container..."
-   docker restart zigbee2mqtt
+   podman restart zigbee2mqtt
 else
    echo "No Errors in Logs... Exiting"
 fi
