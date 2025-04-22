@@ -22,4 +22,4 @@ podman run -d \
     --restart always \
     -p 0.0.0.0:80:8000 \
     -v python-http:/usr/src/app:ro \
-    localhost:5000/python-pip:latest python3 -m http.server
+    localhost/python-pip:latest python3 -m http.server
