@@ -1,4 +1,4 @@
-FROM joplin/server:3.0.1-beta
+FROM docker.io/joplin/server:3.0.1-beta
 
 ARG DEBIAN_FRONTEND=noninteractive
 ENV TZ=America/Chicago

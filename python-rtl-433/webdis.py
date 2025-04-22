@@ -18,7 +18,7 @@ import json
 
 class WEBDIS:
     def __init__(self):
-        self.host = '172.17.0.1'
+        self.host = '10.88.0.1'
         self.port = '7379'
         self.URL_base = f'http://{self.host}:{self.port}/' 
 

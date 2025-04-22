@@ -9,3 +9,16 @@ docker run -d \
     --device=/dev/bus/usb:/dev/bus/usb \
     python-rtl-433:latest
 
+
+#################################
+# Migration to Podman
+#################################
+
+podman build -f Dockerfile -t python-rtl-433:latest
+
+podman run -d \
+    --name python-rtl-433 \
+    --restart always \
+    --device=/dev/bus/usb:/dev/bus/usb \
+    localhost/python-rtl-433:latest
+

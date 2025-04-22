@@ -1,4 +1,4 @@
-FROM python:3.12.7-alpine3.20
+FROM docker.io/library/python:3.12.7-alpine3.20
 ENV TZ="US/Central"
 WORKDIR /usr/src/app
 RUN apk update && apk add --no-cache rtl_433 

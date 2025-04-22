@@ -55,3 +55,19 @@ docker run -d \
     --env-file /var/opt/configmaps/env-file-munin \
     --volume munin:/var/lib/munin \
     dockurr/munin:2.0.76
+
+
+############################
+# Migration to Podman
+############################
+
+podman run -d \
+    --name munin \
+    --restart always \
+    --stop-timeout 60 \
+    -p 0.0.0.0:8083:80 \
+    --env TZ=US/Central \
+    --env-file /root/configs/env-file-munin \
+    --volume munin:/var/lib/munin \
+    docker.io/dockurr/munin:2.0.76
+
