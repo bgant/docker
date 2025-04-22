@@ -4,6 +4,9 @@
 .ssh
 .cache
 
+# Ignore Python cache
+__pycache__
+
 # Ignore files holding secret information
 authenticate.py
 localhost.crt
